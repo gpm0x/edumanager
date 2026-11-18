@@ -1,0 +1,136 @@
+<!--
+  VIEW do formulario de usuario.
+
+  O campo de senha e type="password" (checklist 9.9). O olhinho troca para
+  type="text" so enquanto o usuario quiser conferir o que digitou.
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="titulo"
+    subtitle="O login e a chave de entrada no sistema e nao pode repetir"
+  ></app-page-header>
+
+  <app-loading [loading]="carregando()" message="Carregando o usuario..."></app-loading>
+
+  @if (!carregando()) {
+    <form class="em-form-card" [formGroup]="form" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="em-alert-error">
+          <mat-icon>error</mat-icon>
+          {{ erro() }}
+        </div>
+      }
+
+      <div class="em-form-grid">
+        <p class="em-form-section">Identificacao</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nome completo</mat-label>
+          <input matInput formControlName="name" maxlength="80" />
+          <mat-error>{{ mensagem('name', 'O nome') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" maxlength="100" />
+          <mat-icon matIconPrefix>alternate_email</mat-icon>
+          <mat-error>{{ mensagem('email', 'O e-mail') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Acesso</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Login</mat-label>
+          <input matInput formControlName="login" maxlength="20" autocomplete="off" />
+          <mat-icon matIconPrefix>person</mat-icon>
+          <mat-hint>De 4 a 20 caracteres, gravado em minusculas</mat-hint>
+          <mat-error>{{ mensagem('login', 'O login') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Senha</mat-label>
+          <input
+            matInput
+            [type]="senhaVisivel() ? 'text' : 'password'"
+            formControlName="password"
+            maxlength="20"
+            autocomplete="new-password"
+          />
+          <mat-icon matIconPrefix>lock</mat-icon>
+
+          <button
+            matIconButton
+            matIconSuffix
+            type="button"
+            [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+            (click)="alternarSenha()"
+          >
+            <mat-icon>{{ senhaVisivel() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+
+          <mat-hint>De 6 a 20 caracteres</mat-hint>
+          <mat-error>{{ mensagem('password', 'A senha') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Perfil e situacao</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Perfil</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="admin">Administrador</mat-option>
+            <mat-option value="professor">Professor</mat-option>
+            <mat-option value="aluno">Aluno</mat-option>
+          </mat-select>
+          <mat-hint>O perfil define quais telas este usuario abre</mat-hint>
+          <mat-error>{{ mensagem('role', 'O perfil') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Situacao</mat-label>
+          <mat-select formControlName="active">
+            <mat-option [value]="true">Ativo</mat-option>
+            <mat-option [value]="false">Inativo</mat-option>
+          </mat-select>
+          <mat-hint>Usuario inativo nao consegue entrar no sistema</mat-hint>
+        </mat-form-field>
+
+        <!--
+          VINCULO COM A PESSOA.
+
+          A secao inteira so existe para os perfis que representam alguem do
+          quadro academico. O administrador nao tem vinculo: ele
+          veem a escola toda, e um campo vazio e desabilitado so confundiria
+          quem preenche.
+
+          Este campo e o que faz a restricao de acesso funcionar. Sem ele, o
+          sistema sabe que a pessoa e aluna, mas nao sabe QUAIS matriculas sao
+          dela - e nao teria como filtrar nada.
+        -->
+
+        @if (perfilEscolhido() === 'aluno') {
+          <p class="em-form-section">Vinculo do aluno</p>
+
+          <mat-form-field appearance="outline" class="em-form-full">
+            <mat-label>Este usuario e qual aluno?</mat-label>
+            <mat-select formControlName="studentId">
+              @for (aluno of alunos(); track aluno.id) {
+                <mat-option [value]="aluno.id">{{ aluno.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>
+              Ele vera somente as proprias matriculas, mensalidades e frequencia
+            </mat-hint>
+            <mat-error>{{ mensagem('studentId', 'O aluno') }}</mat-error>
+          </mat-form-field>
+        }
+      </div>
+
+      <app-form-actions
+        [saveDisabled]="form.invalid"
+        [loading]="salvando()"
+        (save)="salvar()"
+        (cancel)="fechar()"
+      ></app-form-actions>
+    </form>
+  }
+</div>

@@ -1,0 +1,12 @@
+<!-- VIEW da caixa de busca. O (search) e emitido pelo .ts, com debounce. -->
+<mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+  <mat-icon matIconPrefix>search</mat-icon>
+
+  <input matInput type="text" [formControl]="campo" [placeholder]="placeholder" />
+
+  @if (campo.value) {
+    <button matIconButton matIconSuffix type="button" aria-label="Limpar busca" (click)="limpar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+</mat-form-field>

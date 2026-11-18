@@ -1,0 +1,72 @@
+// ============================================================================
+//  PAGE HEADER - o cabecalho de toda tela interna
+// ============================================================================
+//  Titulo na fonte de titulo, apoio em cinza e uma BARRA CORAL na esquerda do
+//  bloco de texto.
+//
+//  Essa barra e o mesmo objeto que marca o item aberto no menu lateral. Repetir
+//  a forma em vez de inventar outra e o que faz o menu e a pagina parecerem a
+//  mesma peca: o coral marca "onde eu estou", la na navegacao e aqui no titulo.
+//
+//  Note que NAO existe mais o filete embaixo do cabecalho: nesta identidade o
+//  que separa os blocos da pagina e o espaco (26px vindos do .em-page) e a
+//  sombra dos cards, nao a linha.
+// ----------------------------------------------------------------------------
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 4px 0 2px;
+}
+
+.page-header__text {
+  position: relative;
+  min-width: 0;
+  padding-left: 20px;
+
+  // A barra coral: 4px, cantos arredondados, da altura do texto.
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    bottom: 5px;
+    width: 4px;
+    border-radius: 4px;
+    background: linear-gradient(to bottom, var(--em-coral), var(--em-coral-deep));
+  }
+}
+
+.page-header__title {
+  margin: 0;
+  font-family: var(--em-font-display);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--em-emerald);
+  font-variation-settings:
+    'opsz' 40,
+    'wdth' 90;
+}
+
+.page-header__subtitle {
+  margin: 8px 0 0;
+  max-width: 58ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--em-gray);
+}
+
+@media (max-width: 720px) {
+  .page-header__title {
+    font-size: 27px;
+  }
+
+  .page-header__text {
+    padding-left: 16px;
+  }
+}

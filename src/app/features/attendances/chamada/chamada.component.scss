@@ -1,0 +1,124 @@
+/*
+ * Estilo do componente <chamada>.
+ *
+ * Esta tela tem mais CSS proprio que as outras por um motivo: ela nao e uma
+ * tabela. A lista de alunos e um conjunto de BOTOES grandes, porque a acao
+ * principal aqui e tocar em um nome para marcar falta - e area de toque
+ * pequena, em tabela, erra o aluno errado.
+ */
+
+/* Faixa de confirmacao depois de gravar. Verde, e nao a cor de erro. */
+.chamada__ok {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: var(--em-radius);
+  background: var(--em-green-soft);
+  color: var(--em-green);
+  font-weight: 600;
+}
+
+.chamada__filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.chamada__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Cada aluno e um <button> de verdade, e nao uma <div> clicavel: assim o
+ * teclado alcanca a linha com Tab, o Enter marca a falta e o leitor de tela
+ * anuncia que aquilo e acionavel. Acessibilidade de graca, so por usar o
+ * elemento certo.
+ */
+.chamada__aluno {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 20px;
+  border: 0;
+  border-bottom: 1px solid rgb(0 0 0 / 6%);
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
+
+  &:hover {
+    background-color: rgb(0 0 0 / 3%);
+  }
+
+  /* Foco visivel: quem navega por teclado precisa ver onde esta. */
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: -2px;
+  }
+}
+
+.chamada__inicial {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: rgb(0 0 0 / 6%);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.chamada__nome {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.chamada__marca {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--em-green);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/*
+ * A FALTA e o estado que precisa salta aos olhos: numa lista de 30 alunos, o
+ * professor confere "quem esta vermelho" antes de salvar. Por isso a linha
+ * ausente muda de fundo, e nao so o icone da direita.
+ */
+.chamada__aluno--ausente {
+  background: var(--em-red-soft);
+
+  .chamada__marca {
+    color: var(--em-red);
+  }
+
+  &:hover {
+    filter: brightness(0.98);
+  }
+}
+
+.chamada__acoes {
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px 20px;
+}

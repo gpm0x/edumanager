@@ -1,0 +1,94 @@
+<!--
+  VIEW do formulario de aluno.
+
+  O campo de CPF tem DUAS mensagens possiveis, vindas do mesmo validador:
+    cpfTamanho   -> "O CPF deve ter 11 digitos."        (ainda digitando)
+    cpfInvalido  -> "os digitos verificadores nao conferem."
+  As duas frases saem de mensagemDeErro(), entao o texto e igual em toda tela.
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="titulo"
+    subtitle="O CPF e gravado sem pontuacao e validado pelos digitos verificadores"
+  ></app-page-header>
+
+  <app-loading [loading]="carregando()" message="Carregando o aluno..."></app-loading>
+
+  @if (!carregando()) {
+    <form class="em-form-card" [formGroup]="form" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="em-alert-error">
+          <mat-icon>error</mat-icon>
+          {{ erro() }}
+        </div>
+      }
+
+      <div class="em-form-grid">
+        <p class="em-form-section">Dados pessoais</p>
+
+        <mat-form-field appearance="outline" class="em-form-full">
+          <mat-label>Nome completo</mat-label>
+          <input matInput formControlName="name" maxlength="80" />
+          <mat-hint>De 3 a 80 caracteres</mat-hint>
+          <mat-error>{{ mensagem('name', 'O nome') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>CPF</mat-label>
+          <input matInput formControlName="cpf" maxlength="14" inputmode="numeric" />
+          <mat-icon matIconPrefix>badge</mat-icon>
+          <mat-hint>Somente numeros</mat-hint>
+          <mat-error>{{ mensagem('cpf', 'O CPF') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Data de nascimento</mat-label>
+          <input matInput type="date" formControlName="birthDate" />
+          <mat-error>{{ mensagem('birthDate', 'A data de nascimento') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Contato</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" maxlength="100" />
+          <mat-icon matIconPrefix>alternate_email</mat-icon>
+          <mat-error>{{ mensagem('email', 'O e-mail') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Telefone</mat-label>
+          <input matInput formControlName="phone" maxlength="15" inputmode="tel" />
+          <mat-icon matIconPrefix>call</mat-icon>
+          <mat-hint>De 10 a 15 caracteres, com DDD</mat-hint>
+          <mat-error>{{ mensagem('phone', 'O telefone') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="em-form-full">
+          <mat-label>Endereco</mat-label>
+          <input matInput formControlName="address" maxlength="120" />
+          <mat-hint>Rua, numero, bairro e cidade</mat-hint>
+          <mat-error>{{ mensagem('address', 'O endereco') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Situacao</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Situacao</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="ativo">Ativo</mat-option>
+            <mat-option value="inativo">Inativo</mat-option>
+          </mat-select>
+          <mat-hint>Aluno inativo nao aparece para matricular</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <app-form-actions
+        [saveDisabled]="form.invalid"
+        [loading]="salvando()"
+        (save)="salvar()"
+        (cancel)="fechar()"
+      ></app-form-actions>
+    </form>
+  }
+</div>

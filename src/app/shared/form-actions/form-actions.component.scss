@@ -1,0 +1,37 @@
+// ============================================================================
+//  FORM ACTIONS - o rodape de Cancelar / Salvar
+// ============================================================================
+//  A linha em cima separa a area de DIGITAR da area de DECIDIR. E o unico
+//  lugar fora da tabela onde a identidade "Campus Vivo" ainda usa linha: aqui
+//  ela nao e decoracao, e um limite - o que esta abaixo dela grava no banco.
+//
+//  A ordem (Cancelar a esquerda, Salvar a direita) e a cor (Cancelar em texto
+//  esmeralda, Salvar em coral cheio) vem dos tokens do Material. O coral
+//  cumpre a regra do sistema: acao se faz em coral.
+// ----------------------------------------------------------------------------
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--em-line);
+}
+
+// Centraliza o spinner no lugar onde estava o texto do botao.
+mat-spinner {
+  --mat-progress-spinner-active-indicator-color: #ffffff;
+  margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  // No celular os dois botoes dividem a largura: alvo de toque maior e nenhum
+  // deles encostando na borda do card. A ORDEM nao muda (Cancelar a esquerda,
+  // Salvar a direita): inverter a posicao do botao que grava, so no celular,
+  // seria a receita para o usuario apertar o errado.
+  .form-actions button {
+    flex: 1 1 0;
+  }
+}

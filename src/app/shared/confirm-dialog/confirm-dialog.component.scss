@@ -1,0 +1,59 @@
+// ============================================================================
+//  CONFIRM DIALOG - a pergunta antes de uma acao sem volta
+// ============================================================================
+//  O titulo sai na fonte de titulo em esmeralda (vem dos tokens
+//  --mat-dialog-subhead-* em src/styles.scss) e o icone fica num CIRCULO
+//  pintado com a cor do caso - do mesmo jeito que no estado vazio e na lista
+//  do dashboard. O sistema repete a mesma forma em vez de inventar uma nova
+//  para cada situacao.
+// ----------------------------------------------------------------------------
+
+.confirm__title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+// O seletor usa ELEMENTO + CLASSE (mat-icon.confirm__icon) de proposito: o
+// Material define .mat-icon com 24px fixos, e so um seletor mais especifico
+// consegue transformar o icone nesse circulo de 40px.
+mat-icon.confirm__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--em-coral-soft);
+  color: var(--em-coral-deep);
+  font-size: 21px;
+  overflow: visible;
+}
+
+// Em exclusao o circulo vira vermelho: a cor avisa antes de o usuario ler.
+mat-icon.confirm__icon--danger {
+  background: var(--em-red-soft);
+  color: var(--em-red);
+}
+
+.confirm__message {
+  margin: 0;
+  color: var(--em-gray);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+// O Material 3 nao tem mais a paleta "warn"; para o botao de exclusao
+// pintamos direto com a cor de erro do tema.
+//
+// --em-btn-glow troca o brilho do hover: o brilho padrao do botao cheio e
+// coral (regra global em src/styles.scss) e, sem esta linha, um botao vermelho
+// acenderia um halo coral em volta.
+.confirm__ok--danger {
+  --mat-button-filled-container-color: var(--em-red);
+  --mat-button-filled-label-text-color: #ffffff;
+  --mdc-filled-button-container-color: var(--em-red);
+  --mdc-filled-button-label-text-color: #ffffff;
+  --em-btn-glow: 0 8px 20px -8px rgba(184, 50, 31, 0.6);
+}

@@ -1,0 +1,131 @@
+<!--
+  VIEW do formulario de curso.
+
+  E o MOLDE dos outros oito formularios:
+    1. <app-page-header>   titulo ("Novo curso" / "Editar curso")
+    2. <app-loading>       so aparece na edicao, enquanto busca o registro
+    3. form.em-form-card   os campos dentro de .em-form-grid (2 colunas)
+    4. <app-form-actions>  Cancelar / Salvar
+
+  Convencoes do projeto: todo campo com appearance="outline" e toda mensagem de
+  erro dentro de <mat-error>, com o texto vindo de mensagemDeErro() - entao a
+  frase e a mesma em todas as telas e acompanha a tabela LIMITES.
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="titulo"
+    subtitle="Os dados do curso valem para todas as turmas abertas a partir dele"
+  ></app-page-header>
+
+  <app-loading [loading]="carregando()" message="Carregando o curso..."></app-loading>
+
+  @if (!carregando()) {
+    <form class="em-form-card" [formGroup]="form" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="em-alert-error">
+          <mat-icon>error</mat-icon>
+          {{ erro() }}
+        </div>
+      }
+
+      <div class="em-form-grid">
+        <p class="em-form-section">Identificacao</p>
+
+        <mat-form-field appearance="outline" class="em-form-full">
+          <mat-label>Nome do curso</mat-label>
+          <input matInput formControlName="name" maxlength="60" />
+          <mat-hint>De 3 a 60 caracteres</mat-hint>
+          <mat-error>{{ mensagem('name', 'O nome') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="em-form-full">
+          <mat-label>Descricao</mat-label>
+          <textarea matInput formControlName="description" rows="3" maxlength="200"></textarea>
+          <mat-hint>De 10 a 200 caracteres</mat-hint>
+          <mat-error>{{ mensagem('description', 'A descricao') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Carga e valor</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Carga horaria</mat-label>
+          <input matInput type="number" formControlName="workload" min="1" max="2000" />
+          <span matTextSuffix>horas</span>
+          <mat-error>{{ mensagem('workload', 'A carga horaria') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Valor</mat-label>
+          <span matTextPrefix>R$&nbsp;</span>
+          <input matInput type="number" formControlName="price" min="0" step="0.01" />
+          <mat-hint>Use 0 para curso gratuito</mat-hint>
+          <mat-error>{{ mensagem('price', 'O valor') }}</mat-error>
+        </mat-form-field>
+
+        <!--
+          PROFESSOR RESPONSAVEL (requisito 4). O campo nao e obrigatorio: a
+          escola pode cadastrar o curso antes de decidir quem da a aula.
+
+          Ele sai da tela quando quem edita e o proprio professor: trocar o
+          responsavel seria passar o curso adiante, e isso e decisao da
+          administracao.
+        -->
+        @if (podeEscolherProfessor) {
+          <p class="em-form-section">Responsavel</p>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Professor responsavel (opcional)</mat-label>
+            <mat-select formControlName="teacherId">
+              <mat-option [value]="null">Sem responsavel definido</mat-option>
+              @for (professor of professores(); track professor.id) {
+                <mat-option [value]="professor.id">{{ professor.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>O professor ve no painel dele somente os cursos que sao dele</mat-hint>
+          </mat-form-field>
+        }
+
+        <p class="em-form-section">Condicoes de pagamento</p>
+
+        <!--
+          Teto de parcelamento DESTE curso (requisito 6.2: "as opcoes deverao
+          respeitar o valor e as condicoes configuradas para cada curso"). A
+          tela de matricula oferece 2x, 3x, 5x e 10x filtradas por este numero.
+        -->
+        <mat-form-field appearance="outline">
+          <mat-label>Maximo de parcelas</mat-label>
+          <input matInput type="number" formControlName="maxInstallments" min="1" max="10" />
+          <span matTextSuffix>parcelas</span>
+          <mat-hint>De 1 a 10. Limita as opcoes oferecidas na matricula.</mat-hint>
+          <mat-error>{{ mensagem('maxInstallments', 'O maximo de parcelas') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Situacao</p>
+
+        <!--
+          courses guarda `active: boolean`. O select trabalha com os dois valores
+          booleanos diretamente, para o formulario entregar ao model exatamente o
+          tipo que o contrato de dados pede.
+
+          Curso inativo continua existindo (e as turmas antigas continuam
+          apontando para ele), mas nao aparece como opcao ao abrir turma nova.
+        -->
+        <mat-form-field appearance="outline">
+          <mat-label>Situacao</mat-label>
+          <mat-select formControlName="active">
+            <mat-option [value]="true">Ativo</mat-option>
+            <mat-option [value]="false">Inativo</mat-option>
+          </mat-select>
+          <mat-hint>Curso inativo nao pode receber turma nova</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <app-form-actions
+        [saveDisabled]="form.invalid"
+        [loading]="salvando()"
+        (save)="salvar()"
+        (cancel)="fechar()"
+      ></app-form-actions>
+    </form>
+  }
+</div>

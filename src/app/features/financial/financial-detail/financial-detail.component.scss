@@ -1,0 +1,29 @@
+/*
+ * Estilo do componente <financial-detail>.
+ *
+ * O visual geral vem das classes .em-* de src/styles.scss. Aqui fica o unico
+ * arranjo exclusivo desta tela: a faixa de identificacao do lancamento, que
+ * nao e tabela nem formulario - e um conjunto de rotulo + valor que precisa
+ * caber em qualquer largura.
+ */
+
+.detalhe__identificacao {
+  display: grid;
+  /*
+   * auto-fit com minimo de 180px: em tela larga os seis campos ficam em uma
+   * linha; em tela estreita eles se reorganizam sozinhos, sem media query.
+   */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.detalhe__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  /* O chip de situacao nao deve esticar na largura da coluna. */
+  > app-status-chip {
+    align-self: flex-start;
+  }
+}

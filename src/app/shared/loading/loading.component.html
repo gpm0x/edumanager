@@ -1,0 +1,7 @@
+<!-- VIEW do carregando: nao renderiza nada quando loading = false. -->
+@if (loading) {
+  <div class="loading">
+    <mat-spinner diameter="28"></mat-spinner>
+    <span class="loading__message">{{ message }}</span>
+  </div>
+}

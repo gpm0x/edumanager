@@ -1,0 +1,192 @@
+<!--
+  VIEW da tela de login.
+
+  A tela e dividida em dois painieis, lado a lado:
+    ESQUERDA (tinta)  -> a marca e o que o sistema e. Aparece so no desktop.
+    DIREITA  (papel)  -> o formulario, que e o que o usuario veio fazer aqui.
+
+  No celular o painel de tinta sai e sobra o formulario, centralizado.
+
+  O aluno PODE criar a propria conta (link no fim do formulario, tela
+  /criar-conta). Conta de administrador continua sendo criada por quem ja e
+  administrador, na tela de Usuarios.
+
+  Nao existe "esqueci minha senha": recuperacao por e-mail exigiria um servidor
+  de envio, que o JSON Server nao tem. Quem perde a senha pede ao administrador.
+-->
+<div class="login">
+  <!-- ==================== PAINEL DE TINTA (apresentacao) ==================== -->
+  <aside class="login__aside">
+    <div class="login__brand">
+      <span class="login__mark" aria-hidden="true">E</span>
+      <span class="login__brand-name">EduManager</span>
+    </div>
+
+    <div class="login__pitch">
+      <p class="login__eyebrow">Sistema de registro academico</p>
+
+      <h1 class="login__headline">
+        Alunos, turmas, matriculas e <em>frequencia</em> em um registro so.
+      </h1>
+
+      <p class="login__lede">
+        Cadastro, consulta e acompanhamento da escola inteira, com cada numero no lugar e cada
+        alteracao registrada.
+      </p>
+    </div>
+
+    <!-- Tres numeros do proprio projeto, em fonte monoespacada. -->
+    <dl class="login__facts">
+      <div class="login__fact">
+        <dt>Modulos</dt>
+        <dd>09</dd>
+      </div>
+      <div class="login__fact">
+        <dt>Perfis</dt>
+        <dd>04</dd>
+      </div>
+      <div class="login__fact">
+        <dt>Stack</dt>
+        <dd>NG 21</dd>
+      </div>
+    </dl>
+
+    <p class="login__credit">Projeto academico - Analise e Desenvolvimento de Sistemas</p>
+  </aside>
+
+  <!-- ==================== PAINEL DE PAPEL (formulario) ==================== -->
+  <main class="login__panel">
+    <div class="login__card">
+      <!-- Marca compacta: aparece somente no celular, onde o painel de tinta sai -->
+      <div class="login__brand login__brand--compacta">
+        <span class="login__mark" aria-hidden="true">E</span>
+        <span class="login__brand-name">EduManager</span>
+      </div>
+
+      <header class="login__head">
+        <p class="login__eyebrow login__eyebrow--escuro">Acesso</p>
+        <h2 class="login__titulo">Entrar no sistema</h2>
+        <p class="login__apoio">Entre com o seu e-mail (ou login) e a sua senha.</p>
+      </header>
+
+      <!--
+        PERFIL DE DEMONSTRACAO PREENCHIDO. Diz de onde vieram os valores que
+        apareceram nos campos sozinhos. Sem esta linha, a pessoa que escolheu
+        "Professor" no dialog ve um formulario preenchido e nao tem como
+        confirmar, olhando a tela, qual perfil esta ali.
+      -->
+      @if (acessoDemo(); as demo) {
+        <div class="login__demo-aviso">
+          <mat-icon>{{ demo.icone }}</mat-icon>
+          <span>
+            Acesso de demonstracao: <strong>{{ demo.rotulo }}</strong
+            >. Confira os dados e clique em Entrar.
+          </span>
+        </div>
+      }
+
+      <!-- (ngSubmit) dispara no clique do botao e tambem no Enter -->
+      <form class="login__form" [formGroup]="form" (ngSubmit)="entrar()">
+        <!--
+          UM campo para os dois identificadores. O type e "text", nao "email":
+          com type="email" o proprio navegador recusaria "admin" antes de o
+          Angular validar, e o login curto deixaria de funcionar.
+        -->
+        <mat-form-field appearance="outline">
+          <mat-label>E-mail ou login</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="login"
+            maxlength="100"
+            autocomplete="username"
+          />
+          <mat-icon matIconPrefix>person</mat-icon>
+          <mat-hint>Pode ser o seu e-mail ou o seu login</mat-hint>
+
+          @if (form.controls.login.hasError('required')) {
+            <mat-error>Informe o seu e-mail ou login</mat-error>
+          }
+          @if (form.controls.login.hasError('minlength')) {
+            <mat-error>Minimo de 4 caracteres</mat-error>
+          }
+          @if (form.controls.login.hasError('maxlength')) {
+            <mat-error>Maximo de 100 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Senha</mat-label>
+          <input
+            matInput
+            [type]="senhaVisivel() ? 'text' : 'password'"
+            formControlName="password"
+            maxlength="20"
+            autocomplete="current-password"
+          />
+          <mat-icon matIconPrefix>lock</mat-icon>
+
+          <button
+            matIconButton
+            matIconSuffix
+            type="button"
+            [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+            (click)="alternarSenha()"
+          >
+            <mat-icon>{{ senhaVisivel() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+
+          @if (form.controls.password.hasError('required')) {
+            <mat-error>Informe a senha</mat-error>
+          }
+          @if (form.controls.password.hasError('minlength')) {
+            <mat-error>Minimo de 6 caracteres</mat-error>
+          }
+          @if (form.controls.password.hasError('maxlength')) {
+            <mat-error>Maximo de 20 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Erro de credencial ou de conexao com a API -->
+        @if (erro()) {
+          <div class="em-alert-error">
+            <mat-icon>error</mat-icon>
+            {{ erro() }}
+          </div>
+        }
+
+        <button class="login__submit" mat-flat-button type="submit" [disabled]="entrando()">
+          @if (entrando()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Entrar
+          }
+        </button>
+
+        <!--
+          Caminho para o autocadastro. Fica DEPOIS do botao de entrar de
+          proposito: a maioria de quem abre esta tela ja tem conta, e a acao
+          principal nao deve dividir espaco com a secundaria.
+        -->
+        <p class="login__cadastro">
+          E aluno e ainda nao tem conta?
+          <a routerLink="/criar-conta">Criar minha conta</a>
+        </p>
+
+        <!--
+          Reabre o dialog de perfis. Existe porque o dialog abre uma vez, na
+          carga da tela: sem este botao, quem fechou por engano - ou quem quer
+          trocar de perfil durante a apresentacao - teria de recarregar a
+          pagina. E um <button type="button"> para o Enter no formulario nao
+          disparar ele em vez do Entrar.
+        -->
+        <p class="login__demo-link">
+          <button type="button" (click)="escolherAcesso()">
+            <mat-icon>switch_account</mat-icon>
+            Usar um acesso de demonstracao
+          </button>
+        </p>
+      </form>
+    </div>
+  </main>
+</div>

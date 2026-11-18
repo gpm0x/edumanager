@@ -1,0 +1,141 @@
+<!-- VIEW do dialog em que o aluno paga uma mensalidade. -->
+<h2 mat-dialog-title class="pag__title">
+  <mat-icon class="pag__icon">payments</mat-icon>
+  Efetuar pagamento
+</h2>
+
+<mat-dialog-content>
+  <!-- O QUE esta sendo pago, antes de COMO pagar. -->
+  <div class="pag__resumo">
+    <div>
+      <span class="em-eyebrow">{{ data.curso }}</span>
+      <p class="pag__parcela">
+        Parcela {{ data.parcela.number ?? '-' }} de {{ data.totalDeParcelas }}
+        <span class="pag__venc" [class.pag__venc--vencida]="vencida">
+          {{ vencida ? 'venceu em' : 'vence em' }} {{ vencimento }}
+        </span>
+      </p>
+    </div>
+    <strong class="pag__valor em-num">{{ valor }}</strong>
+  </div>
+
+  <!-- Escolha do metodo -->
+  <div class="pag__metodos" role="radiogroup" aria-label="Forma de pagamento">
+    <button
+      type="button"
+      class="pag__metodo"
+      role="radio"
+      [attr.aria-checked]="metodo() === 'pix'"
+      [class.pag__metodo--ativo]="metodo() === 'pix'"
+      [disabled]="processando()"
+      (click)="escolher('pix')"
+    >
+      <mat-icon>qr_code_2</mat-icon>
+      PIX
+    </button>
+    <button
+      type="button"
+      class="pag__metodo"
+      role="radio"
+      [attr.aria-checked]="metodo() === 'cartao'"
+      [class.pag__metodo--ativo]="metodo() === 'cartao'"
+      [disabled]="processando()"
+      (click)="escolher('cartao')"
+    >
+      <mat-icon>credit_card</mat-icon>
+      Cartao
+    </button>
+  </div>
+
+  @if (metodo() === 'pix') {
+    <div class="pag__pix">
+      <p class="pag__ajuda">
+        Copie o codigo abaixo e pague no app do seu banco. Depois, clique em
+        <strong>Confirmar pagamento</strong>.
+      </p>
+      <div class="pag__codigo">
+        <code>{{ codigoPix }}</code>
+        <button mat-button type="button" (click)="copiarCodigo()">
+          <mat-icon>{{ codigoCopiado() ? 'check' : 'content_copy' }}</mat-icon>
+          {{ codigoCopiado() ? 'Copiado' : 'Copiar' }}
+        </button>
+      </div>
+    </div>
+  } @else {
+    <form class="pag__cartao" [formGroup]="cartao" (ngSubmit)="pagar()">
+      <mat-form-field appearance="outline" class="pag__full">
+        <mat-label>Numero do cartao</mat-label>
+        <input
+          matInput
+          formControlName="numero"
+          inputmode="numeric"
+          autocomplete="cc-number"
+          placeholder="0000 0000 0000 0000"
+          maxlength="19"
+        />
+        @if (cartao.controls.numero.touched && cartao.controls.numero.invalid) {
+          <mat-error>Informe os 16 digitos do cartao.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="pag__full">
+        <mat-label>Nome impresso no cartao</mat-label>
+        <input matInput formControlName="nome" autocomplete="cc-name" />
+        @if (cartao.controls.nome.touched && cartao.controls.nome.invalid) {
+          <mat-error>Informe o nome como esta no cartao.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Validade</mat-label>
+        <input
+          matInput
+          formControlName="validade"
+          placeholder="MM/AA"
+          maxlength="5"
+          autocomplete="cc-exp"
+        />
+        @if (cartao.controls.validade.touched && cartao.controls.validade.invalid) {
+          <mat-error>Use o formato MM/AA.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>CVV</mat-label>
+        <input
+          matInput
+          formControlName="cvv"
+          inputmode="numeric"
+          maxlength="4"
+          autocomplete="cc-csc"
+        />
+        @if (cartao.controls.cvv.touched && cartao.controls.cvv.invalid) {
+          <mat-error>3 ou 4 digitos.</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  }
+
+  <p class="pag__aviso">
+    <mat-icon>info</mat-icon>
+    Ambiente de demonstracao: nenhuma cobranca real e feita e os dados do cartao nao sao
+    gravados.
+  </p>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" [disabled]="processando()" (click)="cancelar()">
+    Cancelar
+  </button>
+  <button mat-flat-button type="button" [disabled]="processando()" (click)="pagar()">
+    <mat-icon>{{ processando() ? 'hourglass_top' : 'lock' }}</mat-icon>
+    {{ processando() ? 'Processando...' : 'Confirmar pagamento de ' + valor }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,45 @@
+<!--
+  VIEW do dialog de acesso rapido.
+
+  Cada perfil e um <button>, nao uma <div> clicavel: assim o teclado alcanca
+  todos com Tab, o Enter e o espaco funcionam de graca e o leitor de tela
+  anuncia "botao". Uma div com (click) pareceria igual e nao teria nada disso.
+
+  O card mostra o LOGIN em fonte monoespacada e a senha como pontos. O valor
+  real da senha aparece na tela de login depois, no proprio campo, com o
+  olhinho de mostrar - que e onde a pessoa vai conferir antes de entrar.
+-->
+<h2 mat-dialog-title class="demo__title">
+  <mat-icon class="demo__title-icon">switch_account</mat-icon>
+  Como deseja acessar o sistema?
+</h2>
+
+<mat-dialog-content>
+  <p class="demo__apoio">
+    Escolha um perfil de demonstracao. O login e a senha sao preenchidos no formulario e voce
+    confirma no botao <strong>Entrar</strong>.
+  </p>
+
+  <div class="demo__grade">
+    @for (acesso of acessos; track acesso.role) {
+      <button class="demo__card" type="button" (click)="escolher(acesso)">
+        <span class="demo__icone" aria-hidden="true">
+          <mat-icon>{{ acesso.icone }}</mat-icon>
+        </span>
+
+        <span class="demo__rotulo">{{ acesso.rotulo }}</span>
+        <span class="demo__descricao">{{ acesso.descricao }}</span>
+
+        <span class="demo__credencial">
+          <code>{{ acesso.login }}</code>
+          <span class="demo__pontos" aria-hidden="true">••••••</span>
+        </span>
+      </button>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <!-- Saida para quem quer digitar: o atalho e uma oferta, nao uma obrigacao. -->
+  <button mat-button type="button" (click)="dispensar()">Prefiro digitar</button>
+</mat-dialog-actions>

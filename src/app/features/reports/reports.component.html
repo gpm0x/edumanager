@@ -1,0 +1,235 @@
+<!--
+  VIEW dos relatorios.
+
+  Tres blocos:
+    1. quatro numeros gerais (os mesmos cards do dashboard)
+    2. alunos por turma      (checklist 10.2)
+    3. pagamentos em aberto  (checklist 10.3)
+
+  Os blocos 2 e 3 reaproveitam .em-table-card e .em-table-toolbar das
+  listagens: o titulo do relatorio ocupa o lugar da busca, e o total fica a
+  direita. Nenhum CSS novo foi preciso.
+-->
+<div class="em-page">
+  <app-page-header
+    title="Relatorios"
+    subtitle="Consultas de leitura: ocupacao das turmas e situacao financeira"
+  ></app-page-header>
+
+  <app-escopo-aviso [texto]="avisoDeEscopo"></app-escopo-aviso>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Calculando os relatorios..."></app-loading>
+
+  @if (!carregando() && !erro()) {
+    <!-- =================== NUMEROS GERAIS =================== -->
+    <div class="em-cards-grid">
+      <app-stat-card
+        label="Alunos ativos"
+        [value]="alunosAtivos()"
+        icon="people"
+        tone="coral"
+        [ratio]="razaoAlunosAtivos()"
+        [hint]="'de ' + alunos().length + ' cadastrados'"
+      ></app-stat-card>
+
+      <app-stat-card
+        label="Turmas ativas"
+        [value]="turmasAtivas()"
+        icon="groups"
+        tone="emerald"
+        [ratio]="razaoTurmasAtivas()"
+        [hint]="'de ' + turmas().length + ' turmas'"
+      ></app-stat-card>
+
+      <app-stat-card
+        label="Matriculas ativas"
+        [value]="matriculasAtivas()"
+        icon="how_to_reg"
+        tone="green"
+        [ratio]="razaoMatriculasAtivas()"
+        [hint]="'de ' + matriculas().length + ' matriculas'"
+      ></app-stat-card>
+
+      <!--
+        O card de dinheiro existe so para quem alcanca o financeiro. A barra
+        dele mostra QUANTO do total a receber esta atrasado.
+      -->
+      @if (podeVerFinanceiro) {
+        <app-stat-card
+          label="Total a receber"
+          [value]="formatarValor(totalAReceber())"
+          icon="payments"
+          tone="red"
+          [ratio]="razaoAtrasado()"
+          [hint]="formatarValor(totalAtrasado()) + ' em atraso'"
+        ></app-stat-card>
+      }
+    </div>
+
+    <!-- =================== 10.2 ALUNOS POR TURMA =================== -->
+    <div class="em-table-card">
+      <div class="em-table-toolbar">
+        <h2 class="em-eyebrow">Alunos por turma</h2>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="em-filter">
+          <mat-label>Turma</mat-label>
+          <mat-select [value]="turmaEscolhida()" (valueChange)="turmaEscolhida.set($event)">
+            @for (turma of turmas(); track turma.id) {
+              <mat-option [value]="turma.id">{{ rotuloDaTurma(turma) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <span class="em-spacer"></span>
+
+        <!--
+          Ocupacao da turma: o texto diz o numero e a barra mostra o quanto e.
+          A barra fica VERMELHA quando passa de 85% das vagas - e o aviso de
+          que a turma esta fechando.
+        -->
+        @if (turmaDoRelatorio()) {
+          <div class="rel__ocupacao">
+            <span class="em-eyebrow">
+              {{ ativasDaTurma() }} de
+              <strong class="em-num">{{ turmaDoRelatorio()!.capacity }}</strong> vagas ocupadas
+            </span>
+
+            <span
+              class="em-meter rel__ocupacao-barra"
+              [class.rel__ocupacao-barra--cheia]="turmaQuaseCheia()"
+              [style.--em-meter-fill]="ocupacaoDaTurma()"
+            ></span>
+          </div>
+        }
+      </div>
+
+      @if (turmas().length === 0) {
+        <app-empty-state
+          icon="groups"
+          title="Nenhuma turma cadastrada"
+          message="Cadastre uma turma para este relatorio ter o que mostrar."
+        ></app-empty-state>
+      } @else if (matriculasDaTurma().length === 0) {
+        <app-empty-state
+          icon="how_to_reg"
+          title="Turma sem matriculas"
+          message="Nenhum aluno foi matriculado nesta turma ainda."
+        ></app-empty-state>
+      } @else {
+        <div class="em-table-scroll">
+          <table mat-table [dataSource]="matriculasDaTurma()" class="em-table">
+            <ng-container matColumnDef="aluno">
+              <th mat-header-cell *matHeaderCellDef>Aluno</th>
+              <td mat-cell *matCellDef="let matricula">
+                <strong>{{ matricula.student?.name ?? '-' }}</strong>
+                <small class="em-cell-sub">{{ matricula.student?.email ?? '' }}</small>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="cpf">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">CPF</th>
+              <td mat-cell *matCellDef="let matricula" class="em-col-num">
+                {{ cpfFormatado(matricula) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="data">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Matriculado em</th>
+              <td mat-cell *matCellDef="let matricula" class="em-col-num">
+                {{ formatarData(matricula.enrollmentDate) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Situacao</th>
+              <td mat-cell *matCellDef="let matricula">
+                <app-status-chip [status]="matricula.status"></app-status-chip>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunasAlunos"></tr>
+            <tr mat-row *matRowDef="let linha; columns: colunasAlunos"></tr>
+          </table>
+        </div>
+      }
+    </div>
+
+    <!--
+      =================== 10.3 PAGAMENTOS EM ABERTO ===================
+      Bloco financeiro: desenhado para quem alcanca o dinheiro. Ver o comentario de
+      podeVerFinanceiro em reports.component.ts.
+    -->
+    @if (podeVerFinanceiro) {
+      <div class="em-table-card">
+        <div class="em-table-toolbar">
+          <h2 class="em-eyebrow">Pagamentos em aberto</h2>
+
+          <span class="em-spacer"></span>
+
+          <span class="em-eyebrow">
+            {{ parcelasEmAberto().length }} parcela(s) - total
+            <strong class="em-num">{{ formatarValor(totalAReceber()) }}</strong>
+          </span>
+        </div>
+
+        @if (parcelasEmAberto().length === 0) {
+          <app-empty-state
+            icon="check_circle"
+            title="Nada em aberto"
+            message="Nenhuma parcela pendente ou atrasada. Todas as mensalidades estao em dia."
+          ></app-empty-state>
+        } @else {
+          <div class="em-table-scroll">
+            <table mat-table [dataSource]="parcelasEmAberto()" class="em-table">
+              <ng-container matColumnDef="aluno">
+                <th mat-header-cell *matHeaderCellDef>Aluno</th>
+                <td mat-cell *matCellDef="let parcela">
+                  <strong>{{ alunoDaParcela(parcela) }}</strong>
+                  <small class="em-cell-sub">Matricula n {{ parcela.enrollmentId }}</small>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="turma">
+                <th mat-header-cell *matHeaderCellDef>Turma</th>
+                <td mat-cell *matCellDef="let parcela">
+                  <span class="em-num">{{ turmaDaParcela(parcela) }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="vencimento">
+                <th mat-header-cell *matHeaderCellDef class="em-col-num">Vencimento</th>
+                <td mat-cell *matCellDef="let parcela" class="em-col-num">
+                  {{ formatarData(parcela.dueDate) }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="valor">
+                <th mat-header-cell *matHeaderCellDef class="em-col-num">Valor</th>
+                <td mat-cell *matCellDef="let parcela" class="em-col-num">
+                  <strong>{{ formatarValor(parcela.amount) }}</strong>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Situacao</th>
+                <td mat-cell *matCellDef="let parcela">
+                  <app-status-chip [status]="parcela.status"></app-status-chip>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="colunasParcelas"></tr>
+              <tr mat-row *matRowDef="let linha; columns: colunasParcelas"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

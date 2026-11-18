@@ -1,0 +1,128 @@
+<!--
+  VIEW da listagem de cursos.
+
+  E o MOLDE das outras oito listagens. A ordem dos blocos e sempre esta:
+    1. <app-page-header>  titulo + botao da acao principal
+    2. .em-alert-error    erro de API ou de regra de negocio (regra 6.8)
+    3. <app-loading>      enquanto a consulta nao volta
+    4. .em-table-card     barra de busca + tabela (ou estado vazio)
+-->
+<div class="em-page">
+  <app-page-header
+    title="Cursos"
+    subtitle="Catalogo de cursos oferecidos pela instituicao"
+    [actionLabel]="podeCriar ? 'Novo curso' : ''"
+    (action)="novo()"
+  ></app-page-header>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando os cursos..."></app-loading>
+
+  @if (!carregando()) {
+    <div class="em-table-card">
+      <div class="em-table-toolbar">
+        <app-search-field
+          placeholder="Buscar por nome ou descricao..."
+          (search)="termo.set($event)"
+        ></app-search-field>
+
+        <span class="em-spacer"></span>
+
+        <!-- Contagem: confere com o db.json de um olhar, util na apresentacao. -->
+        <span class="em-eyebrow">
+          {{ cursosFiltrados().length }} de {{ cursos().length }} cursos
+        </span>
+      </div>
+
+      @if (cursosFiltrados().length === 0) {
+        <app-empty-state
+          icon="menu_book"
+          title="Nenhum curso encontrado"
+          [message]="
+            termo()
+              ? 'Nenhum curso corresponde a busca. Tente outro termo.'
+              : 'Cadastre o primeiro curso para poder abrir turmas.'
+          "
+          [actionLabel]="podeCriar ? 'Novo curso' : ''"
+          (action)="novo()"
+        ></app-empty-state>
+      } @else {
+        <div class="em-table-scroll">
+          <table mat-table [dataSource]="cursosFiltrados()" class="em-table">
+            <!-- Nome + descricao na mesma celula: a descricao explica o curso
+                 sem gastar uma coluna inteira da tabela. -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Curso</th>
+              <td mat-cell *matCellDef="let curso">
+                <strong>{{ curso.name }}</strong>
+                <small class="em-cell-sub">{{ curso.description }}</small>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="professor">
+              <th mat-header-cell *matHeaderCellDef>Professor</th>
+              <td mat-cell *matCellDef="let curso">{{ nomeDoProfessor(curso) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="workload">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Carga</th>
+              <td mat-cell *matCellDef="let curso" class="em-col-num">{{ curso.workload }} h</td>
+            </ng-container>
+
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Valor</th>
+              <td mat-cell *matCellDef="let curso" class="em-col-num">
+                {{ formatarValor(curso.price) }}
+              </td>
+            </ng-container>
+
+            <!-- courses usa `active: boolean`, nao `status`. O chip espera texto,
+                 entao convertemos aqui (padrao do shared/README.md). -->
+            <ng-container matColumnDef="situacao">
+              <th mat-header-cell *matHeaderCellDef>Situacao</th>
+              <td mat-cell *matCellDef="let curso">
+                <app-status-chip [status]="curso.active ? 'ativo' : 'inativo'"></app-status-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef class="em-col-actions">Acoes</th>
+              <td mat-cell *matCellDef="let curso" class="em-col-actions">
+                @if (podeEditar) {
+                  <button
+                    matIconButton
+                    type="button"
+                    [attr.aria-label]="'Editar ' + curso.name"
+                    (click)="editar(curso)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+
+                @if (podeExcluir) {
+                  <button
+                    matIconButton
+                    type="button"
+                    [attr.aria-label]="'Excluir ' + curso.name"
+                    (click)="excluir(curso)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+            <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

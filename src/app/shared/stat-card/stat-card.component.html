@@ -1,0 +1,30 @@
+<!--
+  VIEW do card de total.
+
+  Leitura de cima para baixo:
+    icone + rotulo miudo  ->  o numero grande  ->  a observacao  ->  a barra.
+  A cor do icone e da barra vem da classe .stat--<tone>.
+-->
+<div class="stat" [class]="'stat--' + tone">
+  <div class="stat__top">
+    <span class="stat__icon">
+      <mat-icon>{{ icon }}</mat-icon>
+    </span>
+
+    <span class="stat__label">{{ label }}</span>
+  </div>
+
+  <strong class="stat__value">{{ value }}</strong>
+
+  @if (hint) {
+    <span class="stat__hint">{{ hint }}</span>
+  }
+
+  <!--
+    A barra so existe quando a tela passou [ratio]. A largura do preenchimento
+    entra por variavel CSS, lida pelo ::before da classe .em-meter.
+  -->
+  @if (temMedidor) {
+    <span class="stat__meter em-meter" [style.--em-meter-fill]="larguraDoMedidor"></span>
+  }
+</div>

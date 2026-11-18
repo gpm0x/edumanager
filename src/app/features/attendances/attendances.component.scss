@@ -1,0 +1,87 @@
+/*
+ * Estilo do componente <attendances>.
+ *
+ * Este arquivo esta propositalmente quase vazio, e isso tem explicacao:
+ * o visual das telas vem das classes .em-* definidas em src/styles.scss
+ * (.em-page, .em-table-card, .em-form-grid, .em-col-actions...), que sao do
+ * Vitral e valem para os 9 modulos. Assim a aparencia fica IGUAL em todas as
+ * telas e muda em um unico lugar.
+ *
+ * O arquivo existe porque o padrao do projeto e TRES arquivos por componente
+ * (.ts + .html + .scss), gerados pelo Angular CLI. Quando esta tela precisar
+ * de um ajuste visual exclusivo dela, ele entra aqui - e, por causa do
+ * encapsulamento de estilo do Angular, nao vaza para as outras telas.
+ */
+
+// ---- Resumo por curso (cards acima da tabela) ----
+.freq__resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.freq__card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      color: var(--em-emerald);
+    }
+
+    small {
+      color: var(--em-gray);
+    }
+  }
+}
+
+.freq__barra {
+  height: 6px;
+  border-radius: var(--em-radius-pill);
+  background: var(--em-bg-deep);
+  overflow: hidden;
+}
+
+.freq__barra-cheia {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--em-green);
+}
+
+.freq__barra-cheia--baixa {
+  background: var(--em-red);
+}
+
+.freq__numeros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-size: 13px;
+}
+
+.freq__pct {
+  font-family: var(--em-font-display);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.freq__alerta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--em-red);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}

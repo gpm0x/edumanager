@@ -1,0 +1,130 @@
+<!--
+  VIEW da casca da aplicacao.
+
+  mat-sidenav-container  = a moldura que divide menu e conteudo
+    mat-sidenav          = a faixa do menu (286px). NAO e ela que pinta de
+                           esmeralda: a faixa e transparente e serve so de
+                           respiro em volta do painel.
+      .sidebar__panel    = o painel esmeralda FLUTUANTE, com canto de 24px e
+                           sombra. E ele que carrega a marca e a navegacao.
+    mat-sidenav-content  = o cabecalho + a tela da rota atual
+-->
+<mat-sidenav-container class="shell">
+  <!-- ===================== MENU LATERAL ===================== -->
+  <mat-sidenav
+    class="sidebar"
+    [mode]="modoMenu()"
+    [opened]="menuVisivel()"
+    (closedStart)="fecharMenu()"
+  >
+    <div class="sidebar__panel">
+      <!--
+        Marca do sistema: monograma coral dentro de um quadrado arredondado.
+        A letra e tipografica (fonte de titulo), nao um icone: e o que da
+        identidade ao sistema em vez de parecer qualquer painel generico.
+      -->
+      <div class="sidebar__brand">
+        <span class="sidebar__mark" aria-hidden="true">E</span>
+
+        <span class="sidebar__brand-text">
+          <span class="sidebar__brand-name">EduManager</span>
+          <span class="sidebar__brand-sub">Gestao escolar</span>
+        </span>
+      </div>
+
+      <nav class="sidebar__nav">
+        <!-- Dashboard: item solto, acima dos grupos -->
+        <a
+          class="sidebar__item"
+          [routerLink]="dashboard.path"
+          routerLinkActive="sidebar__item--active"
+          (click)="fecharMenu()"
+        >
+          <mat-icon>{{ dashboard.icon }}</mat-icon>
+          <span>{{ dashboard.label }}</span>
+        </a>
+
+        <!-- Grupos: ACADEMICO, OPERACAO, GESTAO -->
+        @for (grupo of gruposVisiveis; track grupo.titulo) {
+          <p class="sidebar__group">{{ grupo.titulo }}</p>
+
+          @for (item of grupo.itens; track item.path) {
+            <a
+              class="sidebar__item"
+              [routerLink]="item.path"
+              routerLinkActive="sidebar__item--active"
+              (click)="fecharMenu()"
+            >
+              <mat-icon>{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        }
+      </nav>
+
+      <!--
+        Rodape do painel: o perfil de quem esta logado e o ALCANCE dele.
+        Fica aqui porque explica POR QUE o menu acima tem esses itens (o aluno
+        nao ve "Usuarios", por exemplo) e por que as telas mostram menos
+        registros do que a escola tem.
+      -->
+      @if (usuario) {
+        <div class="sidebar__foot">
+          <span class="sidebar__foot-label">Acesso</span>
+          <span class="sidebar__foot-value">{{ perfil }}</span>
+          <span class="sidebar__foot-alcance">{{ alcance }}</span>
+        </div>
+      }
+    </div>
+  </mat-sidenav>
+
+  <!-- ===================== CONTEUDO ===================== -->
+  <mat-sidenav-content class="content">
+    <!-- Cabecalho -->
+    <mat-toolbar class="header">
+      <!-- Botao do menu: so aparece em tela pequena -->
+      @if (telaPequena()) {
+        <button matIconButton type="button" aria-label="Abrir menu" (click)="alternarMenu()">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+
+      <span class="header__title">Gestao educacional</span>
+
+      <span class="em-spacer"></span>
+
+      <!-- Usuario logado: abre o menu com a opcao Sair -->
+      @if (usuario) {
+        <button class="header__user" type="button" mat-button [matMenuTriggerFor]="menuUsuario">
+          <span class="header__avatar">{{ inicial }}</span>
+
+          <span class="header__user-info">
+            <span class="header__user-name">{{ usuario.name }}</span>
+            <span class="header__user-role">{{ perfil }}</span>
+          </span>
+
+          <mat-icon class="header__user-arrow">expand_more</mat-icon>
+        </button>
+
+        <mat-menu #menuUsuario="matMenu">
+          <div class="menu-usuario__dados">
+            <strong>{{ usuario.name }}</strong>
+            <small>{{ usuario.email }}</small>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <button mat-menu-item type="button" (click)="sair()">
+            <mat-icon>logout</mat-icon>
+            <span>Sair</span>
+          </button>
+        </mat-menu>
+      }
+    </mat-toolbar>
+
+    <!-- Aqui o Router desenha a tela da rota atual (dashboard, alunos, ...) -->
+    <main class="content__outlet">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

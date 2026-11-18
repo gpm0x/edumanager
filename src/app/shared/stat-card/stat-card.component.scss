@@ -1,0 +1,187 @@
+// ============================================================================
+//  STAT CARD - o numero de um indicador
+// ============================================================================
+//  O card e uma superficie branca elevada sobre o marfim. O que muda entre as
+//  variacoes de cor sao TRES coisas, e nada mais: a caixa do icone, a barra de
+//  proporcao e um claro de luz no canto de cima.
+//
+//  Por que tao pouco? Porque sao seis cards lado a lado no dashboard. Seis
+//  fundos coloridos viram um arco-iris e nenhum numero se destaca; com o card
+//  sempre branco, o olho le os SEIS NUMEROS primeiro e so depois percebe a
+//  cor - que e exatamente a ordem de leitura que a tela quer.
+//
+//  Cada tom e declarado como um par de variaveis locais (--stat-accent e
+//  --stat-accent-soft) no fim do arquivo. As regras de desenho usam essas
+//  variaveis, entao o bloco de cada cor tem duas linhas em vez de vinte.
+// ----------------------------------------------------------------------------
+
+.stat {
+  // Tom padrao: coral (o indicador principal de uma tela).
+  --stat-accent: var(--em-coral-deep);
+  --stat-accent-soft: var(--em-coral-soft);
+  --stat-value-color: var(--em-emerald);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  height: 100%;
+  padding: 20px 22px 22px;
+  background: var(--em-surface);
+  border-radius: var(--em-radius-lg);
+  box-shadow: var(--em-shadow);
+  overflow: hidden;
+  transition:
+    transform 200ms cubic-bezier(0.22, 0.68, 0.24, 1),
+    box-shadow 200ms ease;
+
+  // O claro de luz: um circulo da cor do tom, bem apagado, sangrando pelo
+  // canto de cima a direita. E o que da volume ao card branco sem precisar de
+  // borda nem de fundo colorido.
+  &::after {
+    content: '';
+    position: absolute;
+    top: -46px;
+    right: -46px;
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: var(--stat-accent-soft);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--em-shadow-lg);
+  }
+
+  // Todo o conteudo fica acima do claro de luz.
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.stat__top {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+// Icone dentro de um quadrado arredondado pintado com o tom. Nunca compete
+// com o numero: tem 38px contra os 44px de altura do numero.
+.stat__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: var(--stat-accent);
+  color: #ffffff;
+
+  .mat-icon {
+    font-size: 21px;
+    width: 21px;
+    height: 21px;
+  }
+}
+
+.stat__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: var(--em-gray);
+}
+
+// O numero: fonte de titulo, 44px, entrelinha curta. E o elemento que o
+// usuario le primeiro no dashboard, e por isso o maior da tela depois do
+// titulo da faixa.
+.stat__value {
+  margin-top: 4px;
+  font-family: var(--em-font-display);
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  color: var(--stat-value-color);
+  font-variation-settings:
+    'opsz' 48,
+    'wdth' 90;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__hint {
+  font-family: var(--em-font-mono);
+  font-size: 11.5px;
+  letter-spacing: -0.01em;
+  color: var(--em-gray);
+}
+
+// A barra de proporcao. margin-top: auto cola ela na base do card, entao
+// cards de alturas diferentes alinham as barras na mesma linha.
+.stat__meter {
+  margin-top: auto;
+  padding-top: 0;
+  background: var(--stat-accent-soft);
+
+  // O preenchimento herda a cor do tom (o padrao de .em-meter e esmeralda).
+  &::before {
+    background: var(--stat-accent);
+  }
+}
+
+// Quando existe barra, ela precisa de um respiro acima para nao encostar na
+// observacao. O seletor de irmao adjacente resolve sem classe extra.
+.stat__hint + .stat__meter,
+.stat__value + .stat__meter {
+  margin-top: 14px;
+}
+
+// --- OS TONS ----------------------------------------------------------------
+// Cada tom troca apenas o par de variaveis. 'blue' e 'navy' sao os nomes
+// antigos (identidade "O Registro") e apontam para coral e esmeralda.
+.stat--coral,
+.stat--blue {
+  --stat-accent: var(--em-coral-deep);
+  --stat-accent-soft: var(--em-coral-soft);
+}
+
+.stat--emerald,
+.stat--navy {
+  --stat-accent: var(--em-emerald);
+  --stat-accent-soft: var(--em-emerald-soft);
+}
+
+.stat--green {
+  --stat-accent: var(--em-green);
+  --stat-accent-soft: var(--em-green-soft);
+}
+
+.stat--amber {
+  --stat-accent: var(--em-amber-deep);
+  --stat-accent-soft: var(--em-amber-soft);
+}
+
+// Atraso e o unico indicador que cobra acao: aqui o NUMERO tambem sai na cor
+// do tom, nao so o icone.
+.stat--red {
+  --stat-accent: var(--em-red);
+  --stat-accent-soft: var(--em-red-soft);
+  --stat-value-color: var(--em-red);
+}
+
+.stat--gray {
+  --stat-accent: var(--em-gray);
+  --stat-accent-soft: var(--em-bg-deep);
+}
+
+@media (max-width: 720px) {
+  .stat__value {
+    font-size: 38px;
+  }
+}

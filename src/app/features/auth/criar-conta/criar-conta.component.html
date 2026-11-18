@@ -1,0 +1,415 @@
+<!--
+  VIEW da tela de criar conta.
+
+  Usa a MESMA composicao da tela de login (painel esmeralda a esquerda,
+  formulario em card branco a direita) de proposito: criar conta e entrar sao a
+  mesma porta do sistema, e trocar o visual entre as duas faria a pessoa achar
+  que saiu do site.
+
+  O formulario e dividido em tres secoes com um titulo cada - "Seus dados",
+  "Seu curso" e "Seu acesso". Dez campos numa coluna unica, sem divisao,
+  parecem um formulario infinito; divididos, a pessoa ve tres assuntos curtos.
+-->
+<div class="conta">
+  <!-- ==================== PAINEL ESMERALDA (apresentacao) ==================== -->
+  <aside class="conta__aside">
+    <div class="conta__brand">
+      <span class="conta__mark" aria-hidden="true">E</span>
+      <span class="conta__brand-name">EduManager</span>
+    </div>
+
+    <div class="conta__pitch">
+      <p class="conta__eyebrow">Criar conta de aluno</p>
+
+      <h1 class="conta__headline">Acompanhe suas <em>matriculas</em>, mensalidades e presenca.</h1>
+
+      <p class="conta__lede">
+        Sua conta de aluno da acesso somente aos seus proprios dados academicos. Leva menos de um
+        minuto para criar.
+      </p>
+    </div>
+
+    <!--
+      O que a conta libera. Nao e enfeite: e a resposta para "o que eu ganho
+      preenchendo isso?", que e a pergunta de quem esta diante de um formulario
+      de cadastro.
+    -->
+    <ul class="conta__beneficios">
+      <li>
+        <mat-icon>how_to_reg</mat-icon>
+        <span>Suas matriculas e turmas</span>
+      </li>
+      <li>
+        <mat-icon>payments</mat-icon>
+        <span>Suas mensalidades e vencimentos</span>
+      </li>
+      <li>
+        <mat-icon>fact_check</mat-icon>
+        <span>Sua frequencia nas aulas</span>
+      </li>
+    </ul>
+
+    <p class="conta__credit">Projeto academico - Analise e Desenvolvimento de Sistemas</p>
+  </aside>
+
+  <!-- ==================== PAINEL MARFIM (formulario) ==================== -->
+  <main class="conta__panel">
+    <div class="conta__card">
+      <!-- Marca compacta: aparece somente no celular, onde o painel escuro sai -->
+      <div class="conta__brand conta__brand--compacta">
+        <span class="conta__mark" aria-hidden="true">E</span>
+        <span class="conta__brand-name">EduManager</span>
+      </div>
+
+      <header class="conta__head">
+        <p class="conta__eyebrow conta__eyebrow--escuro">Cadastro</p>
+        <h2 class="conta__titulo">Criar minha conta</h2>
+        <p class="conta__apoio">
+          Já tem conta?
+          <a routerLink="/login">Entrar no sistema</a>
+        </p>
+      </header>
+
+      <form class="conta__form" [formGroup]="form" (ngSubmit)="criarConta()">
+        <!-- Erro geral: API fora do ar. Erro de dado aparece no proprio campo. -->
+        @if (erro()) {
+          <div class="em-alert-error">
+            <mat-icon>error</mat-icon>
+            {{ erro() }}
+          </div>
+        }
+
+        <p class="conta__secao">Seus dados</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nome completo</mat-label>
+          <input matInput formControlName="name" maxlength="80" autocomplete="name" />
+          <mat-icon matIconPrefix>person</mat-icon>
+          <mat-error>{{ mensagem('name', 'O nome') }}</mat-error>
+        </mat-form-field>
+
+        <div class="conta__dupla">
+          <!--
+            O CPF e gravado com 11 digitos puros (contrato de dados): a mascara
+            existe so na exibicao. Por isso maxlength="11" e inputmode numerico.
+          -->
+          <mat-form-field appearance="outline">
+            <mat-label>CPF</mat-label>
+            <input
+              matInput
+              formControlName="cpf"
+              maxlength="11"
+              inputmode="numeric"
+              placeholder="Somente numeros"
+            />
+            <mat-hint>11 digitos, sem ponto nem traco</mat-hint>
+            <mat-error>{{ mensagem('cpf', 'O CPF') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Data de nascimento</mat-label>
+            <input matInput type="date" formControlName="birthDate" />
+            <mat-error>{{ mensagem('birthDate', 'A data de nascimento') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Telefone (opcional)</mat-label>
+          <input matInput formControlName="phone" maxlength="15" autocomplete="tel" />
+          <mat-icon matIconPrefix>call</mat-icon>
+          <mat-error>{{ mensagem('phone', 'O telefone') }}</mat-error>
+        </mat-form-field>
+
+        <!--
+          ===================== ESCOLHA DO CURSO =====================
+          Dois selects em cadeia: o curso diz O QUE a pessoa quer fazer, a turma
+          diz QUANDO. A matricula precisa da turma - e ela que tem turno,
+          periodo e capacidade -, mas quem escolhe uma turma sem ver o curso nao
+          sabe o que esta escolhendo. Por isso o curso vem primeiro.
+
+          A secao inteira sai da tela quando nenhum curso tem turma com vaga
+          (ver o aviso no fim do bloco).
+        -->
+        <p class="conta__secao">Seu curso</p>
+
+        @if (carregandoCursos()) {
+          <p class="conta__curso-carregando">
+            <mat-spinner diameter="18"></mat-spinner>
+            Carregando os cursos disponiveis...
+          </p>
+        } @else if (semCursoDisponivel()) {
+          <!--
+            RESERVA: nao existe curso com turma aberta. A conta continua sendo
+            criada - so sem matricula. Travar o cadastro aqui puniria a pessoa
+            por uma decisao do administrador (catalogo vazio, turmas lotadas ou
+            todas concluidas).
+          -->
+          <div class="conta__sem-curso">
+            <mat-icon>event_busy</mat-icon>
+            <span>
+              Nenhuma turma esta com matricula aberta no momento. Voce pode criar a sua conta agora
+              e procurar a administracao da escola para escolher o curso depois.
+            </span>
+          </div>
+        } @else {
+          <mat-form-field appearance="outline">
+            <mat-label>Curso que quero fazer</mat-label>
+            <mat-select formControlName="courseId">
+              @for (item of catalogo(); track item.curso.id) {
+                <mat-option [value]="item.curso.id">{{ item.curso.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matIconPrefix>menu_book</mat-icon>
+            <mat-error>{{ mensagem('courseId', 'O curso') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Carga horaria e preco do curso escolhido: a pessoa decide sabendo. -->
+          @if (cursoEscolhido(); as escolhido) {
+            <p class="conta__curso-info">
+              <span class="em-num">{{ escolhido.curso.workload }}h</span>
+              <span class="conta__curso-sep">·</span>
+              <span class="em-num">{{ formatarPreco(escolhido.curso.price) }}</span>
+            </p>
+
+            <!--
+              O select de turma aparece SO depois do curso, e so quando o curso
+              tem mais de uma turma aberta. Com uma unica turma ela ja foi
+              selecionada pelo componente, e mostrar um select de uma opcao e
+              pedir uma decisao que nao existe.
+            -->
+            @if (turmasDoCurso().length > 1) {
+              <mat-form-field appearance="outline">
+                <mat-label>Turma</mat-label>
+                <mat-select formControlName="classId">
+                  @for (item of turmasDoCurso(); track item.turma.id) {
+                    <mat-option [value]="item.turma.id">
+                      {{ item.turma.code }} · {{ turno(item.turma) }}
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matIconPrefix>groups</mat-icon>
+                <mat-error>{{ mensagem('classId', 'A turma') }}</mat-error>
+              </mat-form-field>
+            }
+
+            <!-- Resumo da turma: o que a pessoa esta de fato contratando. -->
+            @if (turmaEscolhida(); as turma) {
+              <div class="conta__turma">
+                <p class="conta__turma-linha">
+                  <mat-icon>groups</mat-icon>
+                  <span>
+                    Turma <strong class="em-num">{{ turma.turma.code }}</strong> ·
+                    {{ turno(turma.turma) }}
+                  </span>
+                </p>
+                <p class="conta__turma-linha">
+                  <mat-icon>date_range</mat-icon>
+                  <span class="em-num">
+                    {{ formatarData(turma.turma.startDate) }} a
+                    {{ formatarData(turma.turma.endDate) }}
+                  </span>
+                </p>
+                <p class="conta__turma-linha">
+                  <mat-icon>event_available</mat-icon>
+                  <span>
+                    <strong class="em-num">{{ turma.vagas }}</strong> vagas de
+                    <span class="em-num">{{ turma.turma.capacity }}</span>
+                  </span>
+                </p>
+              </div>
+            }
+          }
+        }
+
+        <!--
+          ===================== COMO VOU PAGAR =====================
+          Secao do requisito 6: "no momento da matricula, o aluno devera
+          escolher uma condicao de pagamento".
+
+          Ela aparece SO depois de um curso escolhido, porque e o preco do curso
+          que define o valor das parcelas - oferecer "10x" antes de saber de que
+          valor nao informa nada.
+
+          A previa das parcelas abaixo e calculada pelo mesmo servico que vai
+          gravar, entao o que a pessoa le aqui e exatamente o que entra no
+          banco, centavo por centavo.
+        -->
+        @if (!semCursoDisponivel() && cursoEscolhido()) {
+          <p class="conta__secao">Como vou pagar</p>
+
+          <div class="conta__dupla">
+            <mat-form-field appearance="outline">
+              <mat-label>Condicao de pagamento</mat-label>
+              <mat-select formControlName="condition">
+                <mat-option value="avista">A vista - valor integral</mat-option>
+                <mat-option value="parcelado">Parcelado</mat-option>
+              </mat-select>
+              <mat-icon matIconPrefix>request_quote</mat-icon>
+            </mat-form-field>
+
+            <!--
+              O select de parcelas aparece somente no parcelado. As opcoes vem
+              do teto configurado no curso (Course.maxInstallments): um curso de
+              R$ 450 com teto 3 nao oferece 10x.
+            -->
+            @if (ehParcelado()) {
+              <mat-form-field appearance="outline">
+                <mat-label>Quantidade de parcelas</mat-label>
+                <mat-select formControlName="installments">
+                  @for (quantidade of opcoesDeParcelas(); track quantidade) {
+                    <mat-option [value]="quantidade">{{ quantidade }}x</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matIconPrefix>format_list_numbered</mat-icon>
+              </mat-form-field>
+            }
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Forma de pagamento</mat-label>
+            <mat-select formControlName="method">
+              <mat-option value="pix">PIX</mat-option>
+              <mat-option value="dinheiro">Dinheiro</mat-option>
+              <mat-option value="cartao">Cartao</mat-option>
+            </mat-select>
+            <mat-icon matIconPrefix>account_balance_wallet</mat-icon>
+            <mat-hint>
+              E a forma que voce informa a escola. O pagamento e confirmado pela administracao.
+            </mat-hint>
+          </mat-form-field>
+
+          <!-- PREVIA: o que vai ser gravado, antes de gravar. -->
+          @if (previaDasParcelas().length > 0) {
+            <div class="conta__financeiro">
+              <!--
+                O total e as parcelas sao a MESMA lista, de proposito: o total
+                e a primeira linha e as parcelas vem abaixo, no mesmo
+                alinhamento, para a pessoa conferir de cima para baixo que uma
+                soma na outra. Usa .em-parcelas, as classes compartilhadas com
+                o formulario de matricula do administrador.
+              -->
+              <ul class="em-parcelas">
+                <li>
+                  <span class="em-parcela-rotulo">Total do curso</span>
+                  <strong class="em-num">{{ formatarPreco(valorTotal()) }}</strong>
+                </li>
+
+                @for (parcela of previaDasParcelas(); track parcela.number) {
+                  <li>
+                    <span class="em-parcela-rotulo">
+                      @if (ehParcelado()) {
+                        Parcela {{ parcela.number }}
+                      } @else {
+                        Pagamento unico
+                      }
+                    </span>
+                    <span class="em-num">{{ formatarData(parcela.dueDate) }}</span>
+                    <strong class="em-num">{{ formatarPreco(parcela.amount) }}</strong>
+                  </li>
+                }
+              </ul>
+
+              <!--
+                Aviso obrigatorio de honestidade: escolher PIX aqui nao paga
+                nada (requisito 6.5). Sem esta frase, a pessoa sai da tela
+                achando que quitou a matricula.
+              -->
+              <p class="conta__nota conta__nota--compacta">
+                <mat-icon>info</mat-icon>
+                <span>
+                  Nenhum valor e cobrado agora. As parcelas nascem
+                  <strong>pendentes</strong> e so viram pagas quando a escola confirmar o
+                  recebimento.
+                </span>
+              </p>
+            </div>
+          }
+        }
+
+        <p class="conta__secao">Seu acesso</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>E-mail</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            maxlength="100"
+            autocomplete="email"
+          />
+          <mat-icon matIconPrefix>alternate_email</mat-icon>
+          <mat-error>{{ mensagem('email', 'O e-mail') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Login</mat-label>
+          <input matInput formControlName="login" maxlength="20" autocomplete="username" />
+          <mat-icon matIconPrefix>badge</mat-icon>
+          <mat-hint>De 4 a 20 caracteres. E o que voce vai digitar para entrar.</mat-hint>
+          <mat-error>{{ mensagem('login', 'O login') }}</mat-error>
+        </mat-form-field>
+
+        <div class="conta__dupla">
+          <mat-form-field appearance="outline">
+            <mat-label>Senha</mat-label>
+            <input
+              matInput
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              formControlName="password"
+              maxlength="20"
+              autocomplete="new-password"
+            />
+            <mat-icon matIconPrefix>lock</mat-icon>
+
+            <button
+              matIconButton
+              matIconSuffix
+              type="button"
+              [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+              (click)="alternarSenha()"
+            >
+              <mat-icon>{{ senhaVisivel() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+
+            <mat-hint>6 a 20 caracteres, com letra e numero</mat-hint>
+            <mat-error>{{ mensagem('password', 'A senha') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Repetir a senha</mat-label>
+            <input
+              matInput
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              formControlName="confirmarSenha"
+              maxlength="20"
+              autocomplete="new-password"
+            />
+            <mat-icon matIconPrefix>lock_reset</mat-icon>
+            <mat-error>{{ mensagem('confirmarSenha', 'A confirmacao') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <button class="conta__submit" mat-flat-button type="submit" [disabled]="salvando()">
+          @if (salvando()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            Criar minha conta
+          }
+        </button>
+
+        <!--
+          Diz o que a conta E antes de a pessoa criar. Evita a frustracao de
+          alguem se cadastrar esperando acesso de administrador e encontrar um
+          painel de aluno.
+        -->
+        <p class="conta__nota">
+          <mat-icon>info</mat-icon>
+          <span>
+            Esta tela cria contas de <strong>aluno</strong>. Conta de administrador e criada dentro
+            do sistema, por quem ja e administrador.
+          </span>
+        </p>
+      </form>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,187 @@
+<!--
+  VIEW da listagem de LANCAMENTOS financeiros.
+
+  Tres cards no topo respondem a pergunta do dinheiro na ordem em que ela e
+  feita: quanto foi combinado, quanto entrou, quanto falta. Eles acompanham o
+  filtro da tabela de proposito - filtrando por "Vencido", o card "A receber"
+  mostra exatamente o valor da inadimplencia.
+
+  A linha inteira e clicavel e abre o detalhe, onde ficam as parcelas e a
+  confirmacao de pagamento.
+-->
+<div class="em-page">
+  <app-page-header [title]="titulo" [subtitle]="subtitulo"></app-page-header>
+
+  @if (ehAluno) {
+    <app-escopo-aviso [texto]="avisoDeEscopo"></app-escopo-aviso>
+  }
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando o financeiro..."></app-loading>
+
+  @if (!carregando()) {
+    <div class="em-cards-grid">
+      <app-stat-card
+        label="Combinado"
+        icon="request_quote"
+        tone="coral"
+        [value]="formatarValor(totalCombinado())"
+        [hint]="linhasFiltradas().length + ' lancamento(s)'"
+      ></app-stat-card>
+
+      <app-stat-card
+        [label]="ehAluno ? 'Pago' : 'Recebido'"
+        icon="paid"
+        tone="green"
+        [value]="formatarValor(totalRecebido())"
+        [hint]="ehAluno ? 'Parcelas ja pagas' : 'Parcelas confirmadas'"
+      ></app-stat-card>
+
+      <app-stat-card
+        [label]="ehAluno ? 'A pagar' : 'A receber'"
+        icon="pending_actions"
+        tone="amber"
+        [value]="formatarValor(totalAReceber())"
+        hint="Saldo em aberto dos lancamentos listados"
+      ></app-stat-card>
+    </div>
+
+    <div class="em-table-card">
+      <div class="em-table-toolbar">
+        <app-search-field
+          placeholder="Buscar por aluno ou turma..."
+          (search)="termo.set($event)"
+        ></app-search-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="em-filter">
+          <mat-label>Situacao</mat-label>
+          <mat-select [value]="filtroStatus()" (valueChange)="filtroStatus.set($event)">
+            <mat-option value="todos">Todas</mat-option>
+            <mat-option value="pendente">Pendente</mat-option>
+            <mat-option value="parcialmente_pago">Parcialmente pago</mat-option>
+            <mat-option value="pago">Pago</mat-option>
+            <mat-option value="vencido">Vencido</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      @if (linhasFiltradas().length === 0) {
+        <app-empty-state
+          icon="request_quote"
+          title="Nenhum lancamento encontrado"
+          [message]="
+            termo() || filtroStatus() !== 'todos'
+              ? 'Nenhum lancamento corresponde aos filtros aplicados.'
+              : 'Os lancamentos sao criados automaticamente quando uma matricula e feita.'
+          "
+        ></app-empty-state>
+      } @else {
+        <div class="em-table-scroll">
+          <table mat-table [dataSource]="linhasFiltradas()" class="em-table">
+            <ng-container matColumnDef="aluno">
+              <th mat-header-cell *matHeaderCellDef>Aluno</th>
+              <td mat-cell *matCellDef="let linha">
+                <strong>{{ linha.aluno }}</strong>
+                <small class="em-cell-sub">
+                  Matricula n {{ linha.lancamento.enrollmentId }} -
+                  {{ formatarData(linha.lancamento.createdAt) }}
+                </small>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="curso">
+              <th mat-header-cell *matHeaderCellDef>Turma</th>
+              <td mat-cell *matCellDef="let linha">
+                <span class="em-num">{{ linha.turma }}</span>
+              </td>
+            </ng-container>
+
+            <!-- A combinacao feita na matricula: condicao e metodo informado. -->
+            <ng-container matColumnDef="combinado">
+              <th mat-header-cell *matHeaderCellDef>Combinado</th>
+              <td mat-cell *matCellDef="let linha">
+                <strong>{{ formatarValor(linha.lancamento.totalAmount) }}</strong>
+                <small class="em-cell-sub">
+                  {{ condicao(linha.lancamento) }} - {{ metodo(linha.lancamento) }}
+                </small>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="pago">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Pago</th>
+              <td mat-cell *matCellDef="let linha" class="em-col-num">
+                <span class="em-text-success">{{ formatarValor(linha.pago) }}</span>
+                <small class="em-cell-sub">
+                  {{ linha.parcelasPagas }} de {{ linha.parcelasTotais }} parcela(s)
+                </small>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="saldo">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Saldo</th>
+              <td mat-cell *matCellDef="let linha" class="em-col-num">
+                @if (linha.saldo > 0) {
+                  <strong class="em-text-danger">{{ formatarValor(linha.saldo) }}</strong>
+                } @else {
+                  <span class="em-text-muted">Quitado</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Situacao</th>
+              <td mat-cell *matCellDef="let linha">
+                <app-status-chip [status]="situacao(linha.lancamento.status)"></app-status-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef class="em-col-actions">
+                {{ ehAluno ? 'Pagamento' : 'Detalhe' }}
+              </th>
+              <td mat-cell *matCellDef="let linha" class="em-col-actions">
+                @if (ehAluno && linha.saldo > 0) {
+                  <!--
+                    Situacao pendente/vencida: o aluno vai direto para as
+                    parcelas, onde cada uma em aberto tem o botao Pagar.
+                  -->
+                  <button
+                    mat-flat-button
+                    type="button"
+                    (click)="abrir(linha); $event.stopPropagation()"
+                  >
+                    <mat-icon>payments</mat-icon>
+                    Efetuar pagamento
+                  </button>
+                } @else {
+                  <button
+                    matIconButton
+                    type="button"
+                    aria-label="Abrir o lancamento"
+                    (click)="abrir(linha); $event.stopPropagation()"
+                  >
+                    <mat-icon>chevron_right</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+            <tr
+              mat-row
+              *matRowDef="let linha; columns: colunas"
+              class="financial__linha"
+              (click)="abrir(linha)"
+            ></tr>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

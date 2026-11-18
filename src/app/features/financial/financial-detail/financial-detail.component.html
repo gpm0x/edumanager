@@ -1,0 +1,216 @@
+<!--
+  VIEW do detalhe de um LANCAMENTO financeiro.
+
+  A tela tem tres partes, de cima para baixo, na ordem das perguntas:
+    1. de quem e este lancamento (aluno, curso, turma, combinacao);
+    2. quanto foi combinado, pago e falta (os tres cards);
+    3. as parcelas, uma por linha, com o botao de confirmar recebimento.
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="podePagar ? 'Minha mensalidade' : 'Lancamento financeiro'"
+    [subtitle]="
+      podePagar
+        ? 'Parcelas, saldo e pagamento das parcelas em aberto'
+        : 'Parcelas, saldo e confirmacao de pagamento'
+    "
+    actionLabel="Voltar"
+    actionIcon="arrow_back"
+    (action)="voltar()"
+  ></app-page-header>
+
+  @if (sucesso()) {
+    <div class="em-alert-success">
+      <mat-icon>check_circle</mat-icon>
+      {{ sucesso() }}
+    </div>
+  }
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando o lancamento..."></app-loading>
+
+  @if (!carregando() && lancamento()) {
+    <!-- 1) IDENTIFICACAO ------------------------------------------------- -->
+    <div class="em-card detalhe__identificacao">
+      <div class="detalhe__campo">
+        <span class="em-eyebrow">Aluno</span>
+        <strong>{{ nomeDoAluno }}</strong>
+      </div>
+
+      <div class="detalhe__campo">
+        <span class="em-eyebrow">Curso</span>
+        <strong>{{ nomeDoCurso }}</strong>
+      </div>
+
+      <div class="detalhe__campo">
+        <span class="em-eyebrow">Turma</span>
+        <strong class="em-num">{{ codigoDaTurma }}</strong>
+      </div>
+
+      <div class="detalhe__campo">
+        <span class="em-eyebrow">Condicao</span>
+        <strong>{{ condicao }}</strong>
+      </div>
+
+      <div class="detalhe__campo">
+        <!--
+          O metodo e o que o aluno INFORMOU na matricula. Nao e cobranca: o
+          sistema nao tem integracao com banco (requisito 15).
+        -->
+        <span class="em-eyebrow">Metodo informado</span>
+        <strong>{{ metodo }}</strong>
+      </div>
+
+      <div class="detalhe__campo">
+        <span class="em-eyebrow">Situacao</span>
+        <app-status-chip [status]="situacao"></app-status-chip>
+      </div>
+    </div>
+
+    <!-- 2) O DINHEIRO ---------------------------------------------------- -->
+    @if (resumo(); as valores) {
+      <div class="em-cards-grid">
+        <app-stat-card
+          label="Valor combinado"
+          icon="request_quote"
+          tone="coral"
+          [value]="formatarValor(valores.total)"
+          [hint]="condicao"
+        ></app-stat-card>
+
+        <app-stat-card
+          label="Pago"
+          icon="paid"
+          tone="green"
+          [value]="formatarValor(valores.pago)"
+          [hint]="valores.parcelasPagas + ' de ' + valores.parcelasTotais + ' parcela(s)'"
+          [ratio]="valores.parcelasPagas / valores.parcelasTotais"
+        ></app-stat-card>
+
+        <app-stat-card
+          label="Saldo restante"
+          icon="account_balance_wallet"
+          tone="amber"
+          [value]="formatarValor(valores.saldo)"
+          [hint]="
+            proximaParcela()
+              ? 'Proximo vencimento em ' + formatarData(proximaParcela()!.dueDate)
+              : 'Nada em aberto'
+          "
+        ></app-stat-card>
+      </div>
+    }
+
+    <!-- 3) AS PARCELAS --------------------------------------------------- -->
+    <div class="em-table-card">
+      <div class="em-table-toolbar">
+        <span class="em-eyebrow">Parcelas deste lancamento</span>
+
+        <span class="em-spacer"></span>
+
+        @if (podeConfirmar) {
+          <span class="em-text-muted">
+            Confirmar um pagamento grava a data de hoje e atualiza a matricula.
+          </span>
+        } @else if (podePagar && proximaParcela()) {
+          <span class="em-text-muted">Pague por PIX ou cartao clicando em Pagar.</span>
+        }
+      </div>
+
+      <div class="em-table-scroll">
+        <table mat-table [dataSource]="parcelas()" class="em-table">
+          <ng-container matColumnDef="numero">
+            <th mat-header-cell *matHeaderCellDef>Parcela</th>
+            <td mat-cell *matCellDef="let parcela">
+              <strong class="em-num">
+                {{ parcela.number ?? '-' }} / {{ lancamento()!.installments }}
+              </strong>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="vencimento">
+            <th mat-header-cell *matHeaderCellDef class="em-col-num">Vencimento</th>
+            <td mat-cell *matCellDef="let parcela" class="em-col-num">
+              {{ formatarData(parcela.dueDate) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="valor">
+            <th mat-header-cell *matHeaderCellDef class="em-col-num">Valor</th>
+            <td mat-cell *matCellDef="let parcela" class="em-col-num">
+              <strong>{{ formatarValor(parcela.amount) }}</strong>
+            </td>
+          </ng-container>
+
+          <!-- paidAt fica null enquanto o administrador nao confirmar. -->
+          <ng-container matColumnDef="pagamento">
+            <th mat-header-cell *matHeaderCellDef class="em-col-num">Pago em</th>
+            <td mat-cell *matCellDef="let parcela" class="em-col-num">
+              {{ formatarData(parcela.paidAt) }}
+              @if (metodoDaParcela(parcela)) {
+                <small class="em-cell-sub">via {{ metodoDaParcela(parcela) }}</small>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Situacao</th>
+            <td mat-cell *matCellDef="let parcela">
+              <app-status-chip [status]="statusDaParcela(parcela)"></app-status-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef class="em-col-actions">Acoes</th>
+            <td mat-cell *matCellDef="let parcela" class="em-col-actions">
+              @if (podePagar) {
+                @if (parcela.status === 'pago') {
+                  <span class="em-text-success">Paga</span>
+                } @else {
+                  <button
+                    mat-flat-button
+                    type="button"
+                    [disabled]="salvando()"
+                    (click)="pagar(parcela)"
+                  >
+                    <mat-icon>payments</mat-icon>
+                    Pagar
+                  </button>
+                }
+              } @else if (parcela.status === 'pago') {
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="salvando()"
+                  (click)="estornar(parcela)"
+                >
+                  <mat-icon>undo</mat-icon>
+                  Estornar
+                </button>
+              } @else {
+                <button
+                  mat-flat-button
+                  type="button"
+                  [disabled]="salvando()"
+                  (click)="confirmar(parcela)"
+                >
+                  <mat-icon>check</mat-icon>
+                  Confirmar
+                </button>
+              }
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+          <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+        </table>
+      </div>
+    </div>
+  }
+</div>

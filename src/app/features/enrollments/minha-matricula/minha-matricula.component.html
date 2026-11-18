@@ -1,0 +1,199 @@
+<!--
+  VIEW "Minha matricula" (perfil aluno).
+  1) dados cadastrais  2) minhas matriculas  3) cursos disponiveis
+-->
+<div class="em-page">
+  <app-page-header
+    title="Minha matricula"
+    subtitle="Seus dados, os cursos em que voce esta e os que voce ainda pode fazer"
+    actionLabel="Minhas mensalidades"
+    actionIcon="request_quote"
+    (action)="irParaMensalidades()"
+  ></app-page-header>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando a sua matricula..."></app-loading>
+
+  @if (!carregando() && !erro()) {
+    <!-- 1) DADOS CADASTRAIS ---------------------------------------------- -->
+    @if (aluno(); as eu) {
+      <section class="em-card mm__secao">
+        <header class="mm__secao-head">
+          <h2 class="mm__titulo">
+            <mat-icon>badge</mat-icon>
+            Dados cadastrais
+          </h2>
+          <app-status-chip [status]="eu.status"></app-status-chip>
+        </header>
+
+        <dl class="mm__dados">
+          <div>
+            <dt class="em-eyebrow">Nome</dt>
+            <dd>{{ eu.name }}</dd>
+          </div>
+          <div>
+            <dt class="em-eyebrow">CPF</dt>
+            <dd class="em-num">{{ cpfFormatado(eu.cpf) }}</dd>
+          </div>
+          <div>
+            <dt class="em-eyebrow">Nascimento</dt>
+            <dd class="em-num">{{ formatarData(eu.birthDate) }}</dd>
+          </div>
+          <div>
+            <dt class="em-eyebrow">E-mail</dt>
+            <dd>{{ eu.email }}</dd>
+          </div>
+          <div>
+            <dt class="em-eyebrow">Telefone</dt>
+            <dd class="em-num">{{ eu.phone || '-' }}</dd>
+          </div>
+          <div class="mm__dados-largo">
+            <dt class="em-eyebrow">Endereco</dt>
+            <dd>{{ eu.address || '-' }}</dd>
+          </div>
+        </dl>
+
+        <p class="mm__nota">
+          <mat-icon>info</mat-icon>
+          Encontrou algum dado errado? Procure a secretaria para atualizar o seu cadastro.
+        </p>
+      </section>
+    }
+
+    <!-- 2) MINHAS MATRICULAS --------------------------------------------- -->
+    <section class="em-card mm__secao">
+      <header class="mm__secao-head">
+        <h2 class="mm__titulo">
+          <mat-icon>how_to_reg</mat-icon>
+          Minhas matriculas
+        </h2>
+        <span class="mm__contagem">{{ matriculas().length }}</span>
+      </header>
+
+      @if (matriculas().length === 0) {
+        <app-empty-state
+          icon="how_to_reg"
+          title="Voce ainda nao tem matricula"
+          message="Escolha um curso abaixo para fazer a sua primeira matricula."
+        ></app-empty-state>
+      } @else {
+        <ul class="mm__lista">
+          @for (matricula of matriculas(); track matricula.id) {
+            <li class="mm__item">
+              <div class="mm__item-texto">
+                <strong>{{ nomeDoCurso(matricula) }}</strong>
+                <small class="mm__meta">
+                  Turma <span class="em-num">{{ matricula['class']?.code ?? '-' }}</span>
+                  - {{ turno(matricula['class']) }}
+                  - {{ formatarData(matricula['class']?.startDate) }} a
+                  {{ formatarData(matricula['class']?.endDate) }}
+                </small>
+                <small class="mm__meta">
+                  Matricula n {{ matricula.id }}, feita em
+                  {{ formatarData(matricula.enrollmentDate) }}
+                </small>
+              </div>
+              <app-status-chip [status]="matricula.status"></app-status-chip>
+            </li>
+          }
+        </ul>
+
+        @if (matriculas()[0]?.status === 'pendente') {
+          <p class="mm__nota">
+            <mat-icon>schedule</mat-icon>
+            Matricula pendente vira ativa assim que a primeira mensalidade e paga.
+          </p>
+        }
+      }
+    </section>
+
+    <!-- 3) CURSOS DISPONIVEIS -------------------------------------------- -->
+    <section class="mm__secao mm__secao--solta">
+      <header class="mm__secao-head">
+        <h2 class="mm__titulo">
+          <mat-icon>menu_book</mat-icon>
+          Cursos disponiveis
+        </h2>
+        <span class="mm__contagem">{{ cursosDisponiveis().length }}</span>
+      </header>
+
+      @if (cursosDisponiveis().length === 0) {
+        <app-empty-state
+          icon="menu_book"
+          title="Nenhum curso disponivel no momento"
+          message="Quando a escola abrir um curso novo, ele aparece aqui."
+        ></app-empty-state>
+      } @else {
+        <div class="mm__cursos">
+          @for (item of cursosDisponiveis(); track item.curso.id) {
+            <article class="em-card mm__curso" [class.mm__curso--meu]="item.jaMatriculado">
+              <header>
+                <h3>{{ item.curso.name }}</h3>
+                @if (item.jaMatriculado) {
+                  <span class="mm__selo">
+                    <mat-icon>check_circle</mat-icon>
+                    Voce ja esta neste curso
+                  </span>
+                }
+              </header>
+
+              <p class="mm__descricao">{{ item.curso.description }}</p>
+
+              <div class="mm__numeros">
+                <span>
+                  <mat-icon>schedule</mat-icon>
+                  <span class="em-num">{{ item.curso.workload }}h</span>
+                </span>
+                <span>
+                  <mat-icon>sell</mat-icon>
+                  <span class="em-num">{{ formatarValor(item.curso.price) }}</span>
+                </span>
+                @if (item.curso.maxInstallments && item.curso.maxInstallments > 1) {
+                  <span>
+                    <mat-icon>credit_card</mat-icon>
+                    ate <span class="em-num">{{ item.curso.maxInstallments }}x</span>
+                  </span>
+                }
+              </div>
+
+              @if (!item.jaMatriculado) {
+                @if (item.turmasAbertas.length === 0) {
+                  <p class="mm__sem-turma">Sem turma aberta no momento.</p>
+                } @else {
+                  <div class="mm__turmas">
+                    <span class="em-eyebrow">Escolha a turma</span>
+                    @for (turma of item.turmasAbertas; track turma.id) {
+                      <button
+                        mat-stroked-button
+                        type="button"
+                        class="mm__turma"
+                        (click)="matricular(turma)"
+                      >
+                        <span class="mm__turma-texto">
+                          <strong class="em-num">{{ turma.code }}</strong>
+                          <small>
+                            {{ turno(turma) }} - inicio {{ formatarData(turma.startDate) }}
+                          </small>
+                        </span>
+                        <span class="mm__turma-acao">
+                          Matricular-se
+                          <mat-icon>arrow_forward</mat-icon>
+                        </span>
+                      </button>
+                    }
+                  </div>
+                }
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

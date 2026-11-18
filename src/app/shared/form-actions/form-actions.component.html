@@ -1,0 +1,14 @@
+<!-- VIEW do rodape de formulario: Cancelar a esquerda, Salvar a direita. -->
+<div class="form-actions">
+  <button mat-button type="button" [disabled]="loading" (click)="cancel.emit()">
+    {{ cancelLabel }}
+  </button>
+
+  <button mat-flat-button type="button" [disabled]="saveDisabled || loading" (click)="save.emit()">
+    @if (loading) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      {{ saveLabel }}
+    }
+  </button>
+</div>

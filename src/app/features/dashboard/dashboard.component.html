@@ -1,0 +1,483 @@
+<!--
+  VIEW do dashboard: faixa de abertura, cards de totais e listas.
+
+  OS CARDS MUDAM COM O PERFIL. Sao dois conjuntos, nao um conjunto com itens
+  escondidos: o painel do aluno conta coisas diferentes (mensalidade em aberto,
+  presenca) das que o painel da escola conta (alunos, turmas, inadimplencia).
+  Dentro do painel da escola, cada card ainda depende da permissao da sua area,
+  porque o aluno nao alcanca o cadastro da escola nem o financeiro dos outros.
+
+  Sem grafico: a stack do projeto nao tem biblioteca de grafico. Onde existe
+  uma proporcao real (ativos sobre o total), ela aparece como barra no card.
+-->
+<div class="em-page">
+  <!--
+    FAIXA DE ABERTURA. E o unico bloco esmeralda cheio da area de trabalho, e
+    existe por um motivo: o dashboard e a tela que o usuario ve primeiro depois
+    de entrar, entao ela abre com peso em vez de abrir com uma lista.
+  -->
+  <header class="dash__hero">
+    <div class="dash__hero-text">
+      <p class="dash__data">{{ hoje }}</p>
+      <h1 class="dash__title">Ola, {{ primeiroNome }}</h1>
+      <p class="dash__subtitle">{{ apresentacao }}</p>
+    </div>
+
+    <!-- Decoracao: o icone da escola dentro dos arcos do sistema. -->
+    <span class="dash__hero-glyph" aria-hidden="true">
+      <mat-icon>school</mat-icon>
+    </span>
+  </header>
+
+  <!--
+    CONTA RECEM-CRIADA (requisito 3). O autocadastro termina AQUI, ja
+    autenticado, e nao na tela de login. Esta faixa confirma as duas coisas que
+    a pessoa quer saber no instante em que a tela abre: a conta existe e a
+    matricula foi feita. Sem ela, o cadastro termina em um painel qualquer e a
+    pessoa fica sem saber se deu certo.
+  -->
+  @if (boasVindas()) {
+    <div class="dash__boas-vindas">
+      <mat-icon>check_circle</mat-icon>
+
+      <div class="dash__boas-vindas-texto">
+        <strong>Conta criada, {{ boasVindas() }}!</strong>
+        <span>
+          @if (cursoDaMatricula()) {
+            Sua matricula em <strong>{{ cursoDaMatricula() }}</strong> foi registrada e as parcelas
+            foram geradas como <strong>pendentes</strong> - a escola confirma o pagamento e sua
+            matricula e ativada.
+          } @else {
+            Voce ja esta dentro do sistema. Procure a administracao para escolher o curso.
+          }
+        </span>
+      </div>
+
+      <span class="em-spacer"></span>
+
+      @if (cursoDaMatricula()) {
+        <button mat-button type="button" (click)="irParaMinhasMatriculas()">
+          Ver minha matricula
+        </button>
+      }
+
+      <button mat-button type="button" aria-label="Fechar aviso" (click)="fecharBoasVindas()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- Avisa que os numeros sao de um recorte (so para perfil restrito). -->
+  <app-escopo-aviso [texto]="avisoDeEscopo"></app-escopo-aviso>
+
+  <!-- Erro de conexao com a API -->
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando os dados..."></app-loading>
+
+  @if (!carregando() && !erro()) {
+    <!-- =================== CARDS DE TOTAIS =================== -->
+    @if (ehAluno) {
+      <!-- ---------- PAINEL DO ALUNO ---------- -->
+      <div class="em-cards-grid">
+        <!--
+          CURSO ATUAL (requisito 9, painel do aluno). O valor e o NOME do curso,
+          e nao um numero: "qual curso eu estou fazendo" e a primeira pergunta
+          do aluno, e um card dizendo "1 curso" nao a responde. Sem matricula,
+          o card mostra "-" em vez de um zero que nao significa nada.
+        -->
+        <app-stat-card
+          label="Meu curso"
+          [value]="cursoAtual() || '-'"
+          icon="menu_book"
+          tone="emerald"
+          [hint]="cursoAtual() ? 'Matricula mais recente' : 'Nenhuma matricula ainda'"
+        ></app-stat-card>
+
+        <app-stat-card
+          label="Minhas matriculas"
+          [value]="totalMatriculasAtivas()"
+          icon="how_to_reg"
+          tone="coral"
+          [ratio]="razaoMatriculasAtivas()"
+          [hint]="'de ' + totalMatriculas() + ' no total'"
+        ></app-stat-card>
+
+        <app-stat-card
+          label="Mensalidades em aberto"
+          [value]="totalEmAberto()"
+          icon="payments"
+          [tone]="totalEmAberto() > 0 ? 'red' : 'green'"
+          [hint]="formatarValor(valorEmAberto())"
+        ></app-stat-card>
+
+        <!--
+          Presenca: o valor sai em porcentagem (ja formatada no .ts) e a barra
+          mostra a mesma proporcao. Com nenhuma aula lancada o valor e "-" e a
+          barra nao aparece, em vez de exibir 0% - que diria algo falso.
+        -->
+        <app-stat-card
+          label="Minha presenca"
+          [value]="presencaEmPorcentagem"
+          icon="fact_check"
+          tone="emerald"
+          [ratio]="razaoPresenca()"
+          [hint]="totalPresencas() + ' de ' + totalAulas() + ' aulas'"
+        ></app-stat-card>
+      </div>
+    } @else if (ehProfessor) {
+      <!-- ---------------- PAINEL DO PROFESSOR ---------------- -->
+      <!--
+        Os quatro numeros que respondem o dia do professor: de quantos cursos
+        ele responde, quantas turmas ele da, quantos alunos dependem dele e
+        quanta chamada ja foi lancada. Nenhum card de dinheiro aqui: a matriz
+        da a ele CONSULTA do financeiro, e consulta mora na tela de
+        lancamentos, nao em um indicador de caixa que nao e responsabilidade
+        dele.
+      -->
+      <div class="em-cards-grid">
+        <app-stat-card
+          label="Meus cursos"
+          [value]="totalCursos()"
+          icon="menu_book"
+          tone="emerald"
+          hint="Cursos de que sou responsavel"
+        ></app-stat-card>
+
+        <app-stat-card
+          label="Minhas turmas"
+          [value]="totalTurmasAtivas()"
+          icon="groups"
+          tone="coral"
+          [ratio]="razaoTurmasAtivas()"
+          [hint]="'de ' + totalTurmas() + ' turmas'"
+        ></app-stat-card>
+
+        <app-stat-card
+          label="Meus alunos"
+          [value]="totalAlunos()"
+          icon="people"
+          tone="coral"
+          [ratio]="razaoAlunosAtivos()"
+          [hint]="totalAlunosAtivos() + ' ativos'"
+        ></app-stat-card>
+
+        <app-stat-card
+          label="Presencas lancadas"
+          [value]="totalAulas()"
+          icon="fact_check"
+          tone="green"
+          [ratio]="razaoPresenca()"
+          [hint]="totalPresencas() + ' presenca(s) de ' + totalAulas() + ' registro(s)'"
+        ></app-stat-card>
+      </div>
+    } @else {
+      <!-- ---------------- PAINEL DA ESCOLA (administrador) ---------------- -->
+      <div class="em-cards-grid">
+        @if (podeVerAlunos) {
+          <app-stat-card
+            label="Alunos"
+            [value]="totalAlunos()"
+            icon="people"
+            tone="coral"
+            [ratio]="razaoAlunosAtivos()"
+            [hint]="totalAlunosAtivos() + ' ativos'"
+          ></app-stat-card>
+        }
+
+        @if (podeVerUsuarios) {
+          <app-stat-card
+            label="Professores"
+            [value]="totalProfessores()"
+            icon="school"
+            tone="emerald"
+            hint="Com credencial ativa"
+          ></app-stat-card>
+        }
+
+        @if (podeVerCursos) {
+          <app-stat-card
+            label="Cursos"
+            [value]="totalCursos()"
+            icon="menu_book"
+            tone="emerald"
+          ></app-stat-card>
+        }
+
+        @if (podeVerTurmas) {
+          <app-stat-card
+            label="Turmas ativas"
+            [value]="totalTurmasAtivas()"
+            icon="groups"
+            tone="coral"
+            [ratio]="razaoTurmasAtivas()"
+            [hint]="'de ' + totalTurmas() + ' turmas'"
+          ></app-stat-card>
+        }
+
+        <app-stat-card
+          label="Matriculas ativas"
+          [value]="totalMatriculasAtivas()"
+          icon="how_to_reg"
+          tone="green"
+          [ratio]="razaoMatriculasAtivas()"
+          [hint]="'de ' + totalMatriculas() + ' matriculas'"
+        ></app-stat-card>
+
+        <!--
+          NOVAS MATRICULAS (requisito 9): as dos ultimos 30 dias. E o numero
+          que diz se a escola esta crescendo - o total de matriculas, sozinho,
+          nao distingue uma escola que cresce de uma que parou.
+        -->
+        <app-stat-card
+          label="Novas matriculas"
+          [value]="totalMatriculasNovas()"
+          icon="trending_up"
+          tone="emerald"
+          hint="Nos ultimos 30 dias"
+        ></app-stat-card>
+
+        @if (podeVerFinanceiro) {
+          <!--
+            Os tres cards de dinheiro do requisito 9: recebido, pendente e em
+            atraso. Em VALOR, e nao em quantidade de parcelas: dez parcelas de
+            R$ 45 e uma de R$ 2.000 sao problemas de tamanhos muito diferentes,
+            e a contagem trataria as onze como iguais.
+          -->
+          <app-stat-card
+            label="Pagamentos recebidos"
+            [value]="formatarValor(valorRecebido())"
+            icon="paid"
+            tone="green"
+            [ratio]="razaoRecebido()"
+            hint="Parcelas confirmadas"
+          ></app-stat-card>
+
+          <app-stat-card
+            label="Pagamentos pendentes"
+            [value]="formatarValor(valorPendente())"
+            icon="pending_actions"
+            tone="amber"
+            hint="A vencer"
+          ></app-stat-card>
+
+          <app-stat-card
+            label="Valores em atraso"
+            [value]="formatarValor(valorEmAtraso())"
+            icon="warning"
+            tone="red"
+            [ratio]="razaoAtrasados()"
+            [hint]="totalPagamentosAtrasados() + ' parcela(s) vencida(s)'"
+          ></app-stat-card>
+        }
+      </div>
+    }
+
+    <!-- =================== LISTAS =================== -->
+    <div class="dash__listas">
+      <!-- Ultimas matriculas -->
+      <section class="em-card dash__lista">
+        <header class="dash__lista-head">
+          <h2 class="dash__lista-titulo">
+            {{ ehAluno ? 'Minhas matriculas' : 'Ultimas matriculas' }}
+          </h2>
+          <span class="dash__lista-contagem">{{ ultimasMatriculas().length }}</span>
+        </header>
+
+        @if (ultimasMatriculas().length === 0) {
+          <app-empty-state
+            icon="how_to_reg"
+            title="Nenhuma matricula"
+            [message]="
+              ehAluno
+                ? 'Voce ainda nao tem matricula registrada.'
+                : 'As matriculas aparecem aqui conforme forem cadastradas.'
+            "
+          ></app-empty-state>
+        } @else {
+          <ul class="dash__itens">
+            @for (matricula of ultimasMatriculas(); track matricula.id) {
+              <li class="dash__item">
+                <!-- A inicial do aluno num circulo: a lista ganha rosto e o
+                     olho encontra a linha pela letra antes de ler o nome. -->
+                <span class="dash__item-inicial" aria-hidden="true">
+                  {{ inicialDoAluno(matricula) }}
+                </span>
+
+                <div class="dash__item-texto">
+                  <strong>{{ alunoDaMatricula(matricula) }}</strong>
+                  <small class="dash__item-meta">
+                    <span class="em-num">{{ turmaDaMatricula(matricula) }}</span>
+                    <span class="dash__item-sep"></span>
+                    <span class="em-num">{{ formatarData(matricula.enrollmentDate) }}</span>
+                  </small>
+                </div>
+
+                <app-status-chip [status]="matricula.status"></app-status-chip>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <!--
+        MINHAS TURMAS (painel do professor). Fica no lugar da lista financeira:
+        a lista que importa ao professor e a das turmas que ele vai dar, com o
+        periodo e o turno - nao a lista de quem esta devendo.
+      -->
+      @if (ehProfessor) {
+        <section class="em-card dash__lista">
+          <header class="dash__lista-head">
+            <h2 class="dash__lista-titulo">Minhas turmas</h2>
+            <span class="dash__lista-contagem">{{ minhasTurmas().length }}</span>
+          </header>
+
+          @if (minhasTurmas().length === 0) {
+            <app-empty-state
+              icon="groups"
+              title="Nenhuma turma atribuida"
+              message="Quando a administracao atribuir uma turma a voce, ela aparece aqui."
+            ></app-empty-state>
+          } @else {
+            <ul class="dash__itens">
+              @for (turma of minhasTurmas(); track turma.id) {
+                <li class="dash__item">
+                  <span class="dash__item-inicial" aria-hidden="true">
+                    <mat-icon>groups</mat-icon>
+                  </span>
+
+                  <div class="dash__item-texto">
+                    <strong class="em-num">{{ turma.code }}</strong>
+                    <small class="dash__item-meta">
+                      {{ cursoDaTurma(turma) }}
+                      <span class="dash__item-sep"></span>
+                      <span class="em-num">
+                        {{ formatarData(turma.startDate) }} a {{ formatarData(turma.endDate) }}
+                      </span>
+                    </small>
+                  </div>
+
+                  <app-status-chip [status]="turma.status"></app-status-chip>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <!--
+        PROXIMAS PARCELAS (painel do aluno, requisito 9). O aluno quer saber o
+        que vence em seguida, e nao o historico: a lista vem ordenada pelo
+        vencimento mais proximo e inclui o que ja venceu, porque isso tambem e
+        "o proximo pagamento a fazer".
+      -->
+      @if (ehAluno) {
+        <section class="em-card dash__lista">
+          <header class="dash__lista-head">
+            <h2 class="dash__lista-titulo">Minhas proximas parcelas</h2>
+            <span
+              class="dash__lista-contagem"
+              [class.dash__lista-contagem--alerta]="totalPagamentosAtrasados() > 0"
+            >
+              {{ proximasParcelas().length }}
+            </span>
+          </header>
+
+          @if (proximasParcelas().length === 0) {
+            <app-empty-state
+              icon="check_circle"
+              title="Nada em aberto"
+              message="Suas mensalidades estao em dia."
+            ></app-empty-state>
+          } @else {
+            <ul class="dash__itens">
+              @for (parcela of proximasParcelas(); track parcela.id) {
+                <li class="dash__item">
+                  <span class="dash__item-inicial" aria-hidden="true">
+                    <mat-icon>event</mat-icon>
+                  </span>
+
+                  <div class="dash__item-texto">
+                    <strong class="em-num dash__item-valor">
+                      {{ formatarValor(parcela.amount) }}
+                    </strong>
+                    <small class="dash__item-meta">
+                      @if (parcela.number) {
+                        Parcela <span class="em-num">{{ parcela.number }}</span>
+                        <span class="dash__item-sep"></span>
+                      }
+                      vence em <span class="em-num">{{ formatarData(parcela.dueDate) }}</span>
+                    </small>
+                  </div>
+
+                  <app-status-chip [status]="parcela.status"></app-status-chip>
+
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="dash__pagar"
+                    (click)="irParaPagamento(parcela)"
+                  >
+                    Pagar
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <!--
+        Pagamentos em atraso: a lista de cobranca do administrador. O aluno ve a
+        lista de PROXIMAS parcelas, acima, que e o recorte util para ele; o
+        professor nao ve nenhuma das duas, porque cobranca nao e trabalho dele.
+      -->
+      @if (ehAdmin && podeVerFinanceiro) {
+        <section class="em-card dash__lista">
+          <header class="dash__lista-head">
+            <h2 class="dash__lista-titulo">Pagamentos em atraso</h2>
+            <span class="dash__lista-contagem dash__lista-contagem--alerta">
+              {{ pagamentosAtrasados().length }}
+            </span>
+          </header>
+
+          @if (pagamentosAtrasados().length === 0) {
+            <app-empty-state
+              icon="check_circle"
+              title="Nenhum pagamento em atraso"
+              message="Todas as parcelas estao em dia."
+            ></app-empty-state>
+          } @else {
+            <ul class="dash__itens">
+              @for (pagamento of pagamentosAtrasados(); track pagamento.id) {
+                <li class="dash__item">
+                  <span class="dash__item-inicial dash__item-inicial--alerta" aria-hidden="true">
+                    <mat-icon>priority_high</mat-icon>
+                  </span>
+
+                  <div class="dash__item-texto">
+                    <strong class="em-num dash__item-valor">
+                      {{ formatarValor(pagamento.amount) }}
+                    </strong>
+                    <small class="dash__item-meta">
+                      Matricula <span class="em-num">n {{ pagamento.enrollmentId }}</span>
+                      <span class="dash__item-sep"></span>
+                      venceu em <span class="em-num">{{ formatarData(pagamento.dueDate) }}</span>
+                    </small>
+                  </div>
+
+                  <app-status-chip [status]="pagamento.status"></app-status-chip>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

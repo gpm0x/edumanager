@@ -1,0 +1,198 @@
+<!--
+  VIEW da listagem de frequencia.
+
+  Os dois filtros (turma e data) nao filtram em memoria: eles REFAZEM a consulta
+  na API. Ver o metodo carregar() no .ts, que mostra qual URL cada combinacao
+  gera.
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="titulo"
+    [subtitle]="subtitulo"
+    [actionLabel]="podeCriar ? 'Fazer chamada' : ''"
+    actionIcon="how_to_vote"
+    (action)="irParaChamada()"
+  ></app-page-header>
+
+  <app-escopo-aviso [texto]="avisoDeEscopo"></app-escopo-aviso>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <!--
+    RESUMO POR CURSO: um card por turma com presencas, faltas e a porcentagem.
+    Acompanha os filtros da tabela (e o resumo do que esta listado).
+  -->
+  @if (!carregando() && resumoPorTurma().length > 0) {
+    <div class="freq__resumo">
+      @for (item of resumoPorTurma(); track item.classId) {
+        <article class="em-card freq__card">
+          <header>
+            <strong>{{ item.curso }}</strong>
+            <small class="em-num">Turma {{ item.turma }}</small>
+          </header>
+
+          <div class="freq__barra" aria-hidden="true">
+            <span
+              class="freq__barra-cheia"
+              [class.freq__barra-cheia--baixa]="item.porcentagem < 75"
+              [style.width.%]="item.porcentagem"
+            ></span>
+          </div>
+
+          <div class="freq__numeros">
+            <span
+              class="freq__pct em-num"
+              [class.em-text-danger]="item.porcentagem < 75"
+              [class.em-text-success]="item.porcentagem >= 75"
+            >
+              {{ item.porcentagem }}%
+            </span>
+            <span class="em-text-success">{{ item.presencas }} presenca(s)</span>
+            <span class="em-text-danger">{{ item.faltas }} falta(s)</span>
+          </div>
+
+          @if (ehAluno && item.porcentagem < 75) {
+            <small class="freq__alerta">
+              <mat-icon>warning</mat-icon>
+              Abaixo de 75% de presenca.
+            </small>
+          }
+        </article>
+      }
+    </div>
+  }
+
+  <div class="em-table-card">
+    <div class="em-table-toolbar">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="em-filter">
+        <mat-label>Turma</mat-label>
+        <mat-select [value]="filtroTurma()" (valueChange)="aplicarTurma($event)">
+          <mat-option value="todas">Todas as turmas</mat-option>
+          @for (turma of turmas(); track turma.id) {
+            <mat-option [value]="turma.id">{{ turma.code }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="em-filter">
+        <mat-label>Data da aula</mat-label>
+        <input
+          matInput
+          type="date"
+          [value]="filtroData()"
+          (change)="aplicarData($any($event.target).value)"
+        />
+      </mat-form-field>
+
+      @if (temFiltro) {
+        <button mat-button type="button" (click)="limparFiltros()">
+          <mat-icon>filter_alt_off</mat-icon>
+          Limpar filtros
+        </button>
+      }
+
+      <span class="em-spacer"></span>
+
+      <span class="em-eyebrow">
+        <span class="em-text-success">{{ presentes() }} presente(s)</span>
+        &nbsp;/&nbsp;
+        <span class="em-text-danger">{{ ausentes() }} falta(s)</span>
+      </span>
+    </div>
+
+    <app-loading [loading]="carregando()" message="Carregando a frequencia..."></app-loading>
+
+    @if (!carregando()) {
+      @if (registros().length === 0) {
+        <app-empty-state
+          icon="fact_check"
+          title="Nenhum registro de frequencia"
+          [message]="
+            temFiltro
+              ? 'Nenhum registro para a turma e a data escolhidas.'
+              : ehAluno
+                ? 'Nenhuma aula com chamada lancada nos seus cursos ainda.'
+                : 'Lance a primeira chamada: escolha a turma e a data da aula.'
+          "
+          [actionLabel]="podeCriar ? 'Fazer chamada' : ''"
+          (action)="irParaChamada()"
+        ></app-empty-state>
+      } @else {
+        <div class="em-table-scroll">
+          <table mat-table [dataSource]="registros()" class="em-table">
+            <ng-container matColumnDef="aluno">
+              <th mat-header-cell *matHeaderCellDef>Aluno</th>
+              <td mat-cell *matCellDef="let registro">
+                <strong>{{ nomeDoAluno(registro) }}</strong>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="curso">
+              <th mat-header-cell *matHeaderCellDef>Curso</th>
+              <td mat-cell *matCellDef="let registro">{{ nomeDoCurso(registro) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="turma">
+              <th mat-header-cell *matHeaderCellDef>Turma</th>
+              <td mat-cell *matCellDef="let registro">
+                <span class="em-num">{{ codigoDaTurma(registro) }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="data">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Data da aula</th>
+              <td mat-cell *matCellDef="let registro" class="em-col-num">
+                {{ formatarData(registro.date) }}
+              </td>
+            </ng-container>
+
+            <!-- present e boolean no db.json; na tela vira palavra. -->
+            <ng-container matColumnDef="presenca">
+              <th mat-header-cell *matHeaderCellDef>Presenca</th>
+              <td mat-cell *matCellDef="let registro">
+                <app-status-chip
+                  [status]="registro.present ? 'presente' : 'ausente'"
+                ></app-status-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef class="em-col-actions">Acoes</th>
+              <td mat-cell *matCellDef="let registro" class="em-col-actions">
+                @if (podeEditar) {
+                  <button
+                    matIconButton
+                    type="button"
+                    aria-label="Editar registro de frequencia"
+                    (click)="editar(registro)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+
+                @if (podeExcluir) {
+                  <button
+                    matIconButton
+                    type="button"
+                    aria-label="Excluir registro de frequencia"
+                    (click)="excluir(registro)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+            <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</div>

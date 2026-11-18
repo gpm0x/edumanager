@@ -1,0 +1,169 @@
+<!--
+  VIEW da CHAMADA.
+
+  A tela segue a ordem do trabalho do professor:
+    1. escolher a turma e o dia da aula;
+    2. ver a lista de quem esta matriculado;
+    3. marcar quem faltou (todos comecam presentes);
+    4. salvar.
+
+  Os dois cards mostram o placar do dia enquanto ele marca, para ele conferir
+  antes de gravar.
+-->
+<div class="em-page">
+  <app-page-header
+    title="Chamada"
+    subtitle="Lance a presenca da turma inteira em uma tela"
+    actionLabel="Ver historico"
+    actionIcon="fact_check"
+    (action)="verHistorico()"
+  ></app-page-header>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  @if (aviso()) {
+    <div class="chamada__ok">
+      <mat-icon>check_circle</mat-icon>
+      {{ aviso() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando as turmas..."></app-loading>
+
+  @if (!carregando()) {
+    @if (turmas().length === 0) {
+      <app-empty-state
+        icon="groups"
+        title="Nenhuma turma ativa"
+        message="A chamada precisa de uma turma ativa. Fale com o administrador da escola."
+      ></app-empty-state>
+    } @else {
+      <!-- 1) TURMA E DATA ------------------------------------------------ -->
+      <div class="em-card chamada__filtros">
+        <mat-form-field appearance="outline">
+          <mat-label>Turma</mat-label>
+          <mat-select [value]="turmaEscolhida()" (valueChange)="aplicarTurma($event)" required>
+            @for (turma of turmas(); track turma.id) {
+              <mat-option [value]="turma.id">{{ turma.code }}</mat-option>
+            }
+          </mat-select>
+          <mat-hint>{{ nomeDoCurso }}</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Data da aula</mat-label>
+          <!--
+            O type="date" nativo e usado de proposito: ele traz o calendario do
+            proprio sistema operacional, ja no formato que o usuario conhece, e
+            entrega o valor em 'aaaa-mm-dd' - que e exatamente o formato que o
+            db.json guarda. Com o datepicker do Material haveria uma conversao
+            de Date para string no meio, e e nela que nasce erro de fuso.
+          -->
+          <input
+            matInput
+            type="date"
+            [value]="dataEscolhida()"
+            [max]="dataMaxima"
+            (change)="aplicarData($any($event.target).value)"
+          />
+          <mat-hint>Nao e possivel lancar chamada de uma aula futura.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <app-loading
+        [loading]="carregandoLista()"
+        message="Carregando os alunos matriculados..."
+      ></app-loading>
+
+      @if (!carregandoLista() && turmaEscolhida() !== null) {
+        @if (linhas().length === 0) {
+          <app-empty-state
+            icon="person_off"
+            title="Nenhum aluno matriculado"
+            message="Esta turma nao tem matricula ativa, entao nao ha presenca para lancar."
+          ></app-empty-state>
+        } @else {
+          <!-- 2) PLACAR DO DIA ------------------------------------------- -->
+          <div class="em-cards-grid">
+            <app-stat-card
+              label="Presencas"
+              icon="how_to_reg"
+              tone="green"
+              [value]="presentes()"
+              [hint]="'de ' + linhas().length + ' aluno(s)'"
+              [ratio]="presentes() / linhas().length"
+            ></app-stat-card>
+
+            <app-stat-card
+              label="Faltas"
+              icon="person_off"
+              tone="coral"
+              [value]="ausentes()"
+              [hint]="'na aula de ' + formatarData(dataEscolhida())"
+            ></app-stat-card>
+          </div>
+
+          <!-- 3) A LISTA ------------------------------------------------- -->
+          <div class="em-table-card">
+            <div class="em-table-toolbar">
+              <span class="em-eyebrow">
+                @if (chamadaJaLancada()) {
+                  Esta chamada ja foi lancada - alterar e salvar CORRIGE o registro
+                } @else {
+                  Clique no aluno para marcar falta
+                }
+              </span>
+
+              <span class="em-spacer"></span>
+
+              <button mat-button type="button" (click)="marcarTodosPresentes()">
+                <mat-icon>done_all</mat-icon>
+                Todos presentes
+              </button>
+            </div>
+
+            <ul class="chamada__lista">
+              @for (linha of linhas(); track linha.studentId) {
+                <li>
+                  <button
+                    type="button"
+                    class="chamada__aluno"
+                    [class.chamada__aluno--ausente]="!linha.present"
+                    (click)="alternar(linha.studentId)"
+                  >
+                    <span class="chamada__inicial">{{ linha.nome.charAt(0) }}</span>
+
+                    <span class="chamada__nome">
+                      {{ linha.nome }}
+                      @if (linha.registroId !== undefined) {
+                        <small class="em-cell-sub">Ja lancado neste dia</small>
+                      }
+                    </span>
+
+                    <span class="chamada__marca">
+                      <mat-icon>{{ linha.present ? 'check_circle' : 'cancel' }}</mat-icon>
+                      {{ linha.present ? 'Presente' : 'Falta' }}
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
+
+            <!-- 4) SALVAR -------------------------------------------------- -->
+            <div class="chamada__acoes">
+              <button mat-flat-button type="button" [disabled]="!podeGravar" (click)="salvar()">
+                <mat-icon>save</mat-icon>
+                {{ chamadaJaLancada() ? 'Salvar correcoes' : 'Salvar chamada' }}
+              </button>
+            </div>
+          </div>
+        }
+      }
+    }
+  }
+</div>

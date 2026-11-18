@@ -1,0 +1,395 @@
+// ============================================================================
+//  CASCA DA APLICACAO - painel esmeralda flutuante + area de trabalho marfim
+// ============================================================================
+//  O menu NAO e um bloco colado na borda da janela: e um PAINEL que flutua
+//  sobre o marfim, com canto de 24px, sombra e respiro em volta. Isso faz duas
+//  coisas de uma vez:
+//
+//    1. o marfim aparece em volta do painel, entao a tela tem ar mesmo com o
+//       menu aberto o tempo todo;
+//    2. o painel parece um objeto apoiado na tela, nao uma parede - e e esse
+//       detalhe que separa o sistema de qualquer painel administrativo.
+//
+//  Sobre o painel esmeralda correm os ARCOS (--em-arcs), o motivo grafico do
+//  sistema: circulos concentricos nascendo de baixo. Eles sao quase invisiveis
+//  (5% de branco), mas sem eles o esmeralda fica chapado.
+// ----------------------------------------------------------------------------
+
+// Ocupa a altura toda da janela.
+.shell {
+  height: 100vh;
+  background: var(--em-bg);
+}
+
+// ============================ MENU LATERAL ============================
+// A FAIXA do menu e transparente: ela so reserva a largura e o respiro. Quem
+// pinta e o .sidebar__panel la dentro.
+.sidebar {
+  width: 286px;
+  padding: 14px 0 14px 14px;
+  border-right: none;
+  background: transparent;
+
+  // O mat-sidenav pinta o proprio fundo por token; aqui ele e desligado.
+  --mat-sidenav-container-background-color: transparent;
+  --mat-sidenav-container-elevation-shadow: none;
+}
+
+// O PAINEL esmeralda: e o objeto que o usuario ve.
+.sidebar__panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 22px 14px 16px;
+  border-radius: 24px;
+  // Gradiente de esmeralda escuro (topo) para esmeralda (base) + os arcos por
+  // cima. A ordem importa: a imagem (arcos) vem antes da cor de fundo.
+  background:
+    var(--em-arcs),
+    linear-gradient(170deg, var(--em-emerald-deep) 0%, var(--em-emerald) 58%, #0b4234 100%);
+  color: rgba(255, 255, 255, 0.76);
+  box-shadow: var(--em-shadow-lg);
+}
+
+// ------------------------------ Marca ------------------------------
+// Os quatro elementos que saem na fonte de TITULO dentro da casca (monograma,
+// nome da marca, perfil do rodape e inicial do avatar) compartilham familia e
+// eixos variaveis. Declarar uma vez, em vez de repetir em cada regra, e o que
+// mantem este arquivo dentro do orcamento de CSS por componente do projeto
+// (4 kB, definido em angular.json).
+.sidebar__mark,
+.sidebar__brand-name,
+.sidebar__foot-value,
+.header__avatar {
+  font-family: var(--em-font-display);
+  font-variation-settings:
+    'opsz' 22,
+    'wdth' 92;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 2px 8px 22px;
+}
+
+// Monograma: a letra E em branco dentro de um quadrado coral arredondado.
+// E o unico lugar do menu onde o coral aparece cheio - entao a marca e o
+// elemento mais forte do painel, como deve ser.
+.sidebar__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 13px;
+  background: linear-gradient(145deg, var(--em-coral) 0%, var(--em-coral-deep) 100%);
+  box-shadow: 0 6px 14px -6px rgba(209, 64, 42, 0.8);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sidebar__brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar__brand-name {
+  font-size: 19.5px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.sidebar__brand-sub {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+// ------------------------------ Navegacao ------------------------------
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  // flex: 1 empurra o rodape do painel para a base, qualquer que seja a
+  // quantidade de itens que o perfil logado enxerga.
+  flex: 1 1 auto;
+}
+
+// Titulo de grupo (ACADEMICO, OPERACAO, GESTAO).
+.sidebar__group {
+  margin: 22px 0 7px;
+  padding: 0 12px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+// Item do menu
+.sidebar__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms cubic-bezier(0.22, 0.68, 0.24, 1);
+
+  mat-icon {
+    font-size: 21px;
+    width: 21px;
+    height: 21px;
+    opacity: 0.72;
+    transition: opacity 160ms ease;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #ffffff;
+    // Desliza 2px para a direita: confirma que o item responde ao ponteiro.
+    transform: translateX(2px);
+
+    mat-icon {
+      opacity: 1;
+    }
+  }
+}
+
+// Item da rota aberta: uma PASTILHA BRANCA sobre o esmeralda, com texto
+// esmeralda e uma barra coral na esquerda.
+//
+// A inversao de cor (branco sobre escuro) e o sinal mais forte que existe numa
+// lista - mais forte que mudar o tom ou engrossar a fonte. E este e o unico
+// lugar da tela em que o usuario precisa saber "onde eu estou" sem procurar.
+.sidebar__item--active {
+  background: #ffffff;
+  color: var(--em-emerald);
+  font-weight: 600;
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.5);
+
+  mat-icon {
+    opacity: 1;
+    color: var(--em-emerald);
+  }
+
+  &:hover {
+    background: #ffffff;
+    color: var(--em-emerald);
+    transform: none;
+  }
+
+  // A barra coral dentro da pastilha, rente a borda esquerda.
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--em-coral);
+  }
+}
+
+// ---------------------------- Rodape do painel ----------------------------
+// Bloco translucido com o perfil de acesso. O fundo claro por cima do
+// esmeralda (branco a 7%) e o mesmo recurso do hover do item: separa sem
+// precisar de linha.
+.sidebar__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 20px;
+  padding: 13px 15px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.sidebar__foot-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.sidebar__foot-value {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+// O alcance do perfil ("Somente os seus cursos"). Sai em pessego, a mesma cor
+// que o login usa sobre o esmeralda: e a informacao que explica a tela.
+.sidebar__foot-alcance {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #ffb49e;
+}
+
+// ============================= CONTEUDO =============================
+.content {
+  display: flex;
+  flex-direction: column;
+  // O marfim e o grao sao repintados aqui (e nao herdados do body) porque o
+  // mat-sidenav-content pinta o proprio fundo por token: sem esta linha a area
+  // de trabalho ficaria com a cor chapada, sem a textura.
+  background: var(--em-bg) var(--em-grain);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 72px;
+  min-height: 72px;
+  padding: 0 24px;
+  background: rgba(247, 243, 236, 0.82);
+  // O cabecalho desfoca o que passa por baixo: a pagina rola e o topo some
+  // atras de um vidro marfim, em vez de cortar o conteudo com um bloco.
+  backdrop-filter: blur(12px) saturate(150%);
+  border-bottom: 1px solid var(--em-line);
+}
+
+// Rotulo miudo com um ponto coral na frente, como a legenda de uma secao.
+.header__title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--em-gray);
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--em-coral);
+    // O halo em volta do ponto: o detalhe que faz ele parecer um sinal aceso.
+    box-shadow: 0 0 0 4px var(--em-coral-soft);
+  }
+}
+
+// Botao do usuario logado: uma pastilha que acende em esmeralda suave.
+.header__user {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 52px;
+  padding: 0 14px 0 7px;
+  border-radius: var(--em-radius-pill);
+
+  &:hover {
+    background: var(--em-emerald-soft);
+  }
+}
+
+// Avatar: inicial branca em circulo esmeralda cheio.
+.header__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--em-emerald-mid), var(--em-emerald-deep));
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.header__user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+}
+
+.header__user-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--em-ink);
+}
+
+.header__user-role {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--em-gray);
+}
+
+.header__user-arrow {
+  color: var(--em-gray-soft);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.content__outlet {
+  display: block;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+// --------------------------- RESPONSIVO ---------------------------
+@media (max-width: 720px) {
+  // No celular o nome do usuario sai do cabecalho; fica so o avatar.
+  .header__user-info,
+  .header__user-arrow {
+    display: none;
+  }
+
+  .header__title {
+    display: none;
+  }
+
+  .header {
+    height: 64px;
+    min-height: 64px;
+    padding: 0 12px;
+  }
+
+  // Como gaveta (mode="over"), o painel ocupa a faixa inteira: o respiro da
+  // esquerda sai e o canto arredondado fica apenas do lado de dentro.
+  .sidebar {
+    width: 272px;
+    padding: 0;
+  }
+
+  .sidebar__panel {
+    border-radius: 0 20px 20px 0;
+  }
+}

@@ -1,0 +1,14 @@
+/*
+ * Estilo do componente <enrollments>.
+ *
+ * Este arquivo esta propositalmente quase vazio, e isso tem explicacao:
+ * o visual das telas vem das classes .em-* definidas em src/styles.scss
+ * (.em-page, .em-table-card, .em-form-grid, .em-col-actions...), que sao do
+ * Vitral e valem para os 9 modulos. Assim a aparencia fica IGUAL em todas as
+ * telas e muda em um unico lugar.
+ *
+ * O arquivo existe porque o padrao do projeto e TRES arquivos por componente
+ * (.ts + .html + .scss), gerados pelo Angular CLI. Quando esta tela precisar
+ * de um ajuste visual exclusivo dela, ele entra aqui - e, por causa do
+ * encapsulamento de estilo do Angular, nao vaza para as outras telas.
+ */

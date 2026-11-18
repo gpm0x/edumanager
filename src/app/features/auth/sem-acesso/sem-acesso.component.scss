@@ -1,0 +1,79 @@
+// ============================================================================
+//  ACESSO NEGADO
+// ============================================================================
+//  A tela usa o card branco elevado do sistema, centralizado e estreito. O selo
+//  do cadeado sai em VERMELHO, e nao em coral: coral e a cor de acao ("clique
+//  aqui"), e aqui nao ha nada para clicar a nao ser voltar. Usar a cor de acao
+//  num bloqueio seria dizer o contrario do que a tela diz.
+// ----------------------------------------------------------------------------
+
+.negado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 520px;
+  margin: 6vh auto 0;
+  padding: 48px 40px;
+  border-radius: var(--em-radius-xl);
+  background: var(--em-surface);
+  box-shadow: var(--em-shadow-lg);
+}
+
+.negado__selo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--em-red-soft);
+  color: var(--em-red);
+
+  .mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.negado__eyebrow {
+  margin: 20px 0 0;
+  color: var(--em-red);
+}
+
+.negado__titulo {
+  margin: 10px 0 0;
+  font-family: var(--em-font-display);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--em-emerald);
+  font-variation-settings:
+    'opsz' 32,
+    'wdth' 92;
+}
+
+.negado__texto {
+  margin: 14px 0 26px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--em-gray);
+
+  strong {
+    color: var(--em-ink);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 720px) {
+  .negado {
+    padding: 32px 22px;
+    border-radius: var(--em-radius-lg);
+  }
+
+  .negado__titulo {
+    font-size: 23px;
+  }
+}

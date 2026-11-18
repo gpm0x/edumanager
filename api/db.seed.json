@@ -1,0 +1,260 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Carlos Eduardo Nunes",
+      "email": "admin@edumanager.com.br",
+      "login": "admin",
+      "password": "admin123",
+      "role": "admin",
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "Ana Clara Martinss",
+      "email": "ana.souza@aluno.edumanager.com.br",
+      "login": "aluno",
+      "password": "123456",
+      "role": "aluno",
+      "active": true,
+      "studentId": 1
+    },
+    {
+      "id": 3,
+      "name": "Gabriel Mota",
+      "email": "gabrielmota@gmail.com",
+      "login": "gabrielmota",
+      "password": "Gabrielmota12",
+      "role": "aluno",
+      "active": true,
+      "studentId": 2
+    },
+    {
+      "id": 4,
+      "name": "Carlos Eduardo Nunes",
+      "email": "professor@edumanager.com.br",
+      "login": "professor",
+      "password": "prof123",
+      "role": "professor",
+      "active": true
+    }
+  ],
+  "students": [
+    {
+      "id": 1,
+      "name": "Ana Clara Martinss",
+      "cpf": "31245287605",
+      "birthDate": "2003-04-12",
+      "email": "ana.souzam@email.com",
+      "phone": "(11) 98471-2250",
+      "address": "Rua das Acacias, 120 - Jardim Paulista, Sao Paulo - SP",
+      "status": "ativo"
+    },
+    {
+      "id": 2,
+      "name": "Gabriel Mota",
+      "cpf": "35489870010",
+      "birthDate": "2004-05-10",
+      "email": "gabrielmota@gmail.com",
+      "phone": "1198542-2500",
+      "address": "Rua Jose Basto, 110 - Vila Iasi, Taboao da Serra - SP",
+      "status": "ativo"
+    }
+  ],
+  "courses": [
+    {
+      "id": 1,
+      "name": "Informatica Basica",
+      "description": "Windows, Word, Excel e navegacao na internet para iniciantes.",
+      "workload": 60,
+      "price": 450,
+      "teacherId": 4,
+      "maxInstallments": 3,
+      "active": true
+    },
+    {
+      "id": 2,
+      "name": "Desenvolvimento Web",
+      "description": "HTML, CSS, JavaScript e introducao a frameworks modernos.",
+      "workload": 120,
+      "price": 1200,
+      "teacherId": 4,
+      "maxInstallments": 10,
+      "active": true
+    },
+    {
+      "id": 3,
+      "name": "CURSO: BASICO AO AVANCADO",
+      "description": "Trilha completa do basico ao avancado, com projeto final.",
+      "workload": 180,
+      "price": 2000,
+      "teacherId": 4,
+      "maxInstallments": 10,
+      "active": true
+    }
+  ],
+  "classes": [
+    {
+      "id": 1,
+      "courseId": 1,
+      "teacherId": 4,
+      "code": "INF-2026-2",
+      "shift": "manha",
+      "startDate": "2026-08-03",
+      "endDate": "2026-12-18",
+      "capacity": 30,
+      "status": "ativa"
+    },
+    {
+      "id": 2,
+      "courseId": 2,
+      "teacherId": 4,
+      "code": "WEB-2026-2",
+      "shift": "noite",
+      "startDate": "2026-08-03",
+      "endDate": "2027-06-30",
+      "capacity": 25,
+      "status": "ativa"
+    },
+    {
+      "id": 3,
+      "courseId": 3,
+      "teacherId": 4,
+      "code": "CLAUDE-2026-1",
+      "shift": "manha",
+      "startDate": "2026-01-01",
+      "endDate": "2026-02-01",
+      "capacity": 100,
+      "status": "ativa"
+    }
+  ],
+  "enrollments": [
+    {
+      "id": 1,
+      "studentId": 1,
+      "classId": 1,
+      "enrollmentDate": "2026-07-20",
+      "status": "ativa"
+    },
+    {
+      "id": 2,
+      "studentId": 2,
+      "classId": 1,
+      "enrollmentDate": "2026-07-22",
+      "status": "ativa"
+    },
+    {
+      "id": 3,
+      "studentId": 2,
+      "classId": 3,
+      "enrollmentDate": "2026-11-14",
+      "status": "pendente"
+    }
+  ],
+  "financialRecords": [
+    {
+      "id": 1,
+      "enrollmentId": 1,
+      "totalAmount": 450,
+      "condition": "parcelado",
+      "installments": 2,
+      "method": "pix",
+      "status": "parcialmente_pago",
+      "createdAt": "2026-07-20"
+    },
+    {
+      "id": 2,
+      "enrollmentId": 2,
+      "totalAmount": 450,
+      "condition": "parcelado",
+      "installments": 2,
+      "method": "dinheiro",
+      "status": "pago",
+      "createdAt": "2026-07-22"
+    },
+    {
+      "id": 3,
+      "enrollmentId": 3,
+      "totalAmount": 2000,
+      "condition": "avista",
+      "installments": 1,
+      "method": "pix",
+      "status": "pendente",
+      "createdAt": "2026-11-14"
+    }
+  ],
+  "payments": [
+    {
+      "id": 1,
+      "financialRecordId": 1,
+      "enrollmentId": 1,
+      "number": 1,
+      "dueDate": "2026-08-10",
+      "amount": 225,
+      "paidAt": "2026-08-08",
+      "status": "pago"
+    },
+    {
+      "id": 2,
+      "financialRecordId": 1,
+      "enrollmentId": 1,
+      "number": 2,
+      "dueDate": "2026-09-10",
+      "amount": 225,
+      "paidAt": null,
+      "status": "vencido"
+    },
+    {
+      "id": 3,
+      "financialRecordId": 2,
+      "enrollmentId": 2,
+      "number": 1,
+      "dueDate": "2026-08-10",
+      "amount": 225,
+      "paidAt": "2026-08-10",
+      "status": "pago"
+    },
+    {
+      "id": 4,
+      "financialRecordId": 2,
+      "enrollmentId": 2,
+      "number": 2,
+      "dueDate": "2026-09-10",
+      "amount": 225,
+      "paidAt": "2026-09-09",
+      "status": "pago"
+    },
+    {
+      "id": 5,
+      "financialRecordId": 3,
+      "enrollmentId": 3,
+      "number": 1,
+      "dueDate": "2026-11-24",
+      "amount": 2000,
+      "paidAt": null,
+      "status": "pendente"
+    }
+  ],
+  "attendances": [
+    { "id": 1, "classId": 1, "courseId": 1, "studentId": 1, "date": "2026-10-05", "present": true },
+    { "id": 2, "classId": 1, "courseId": 1, "studentId": 2, "date": "2026-10-05", "present": true },
+    { "id": 3, "classId": 1, "courseId": 1, "studentId": 1, "date": "2026-10-07", "present": true },
+    {
+      "id": 4,
+      "classId": 1,
+      "courseId": 1,
+      "studentId": 2,
+      "date": "2026-10-07",
+      "present": false
+    },
+    {
+      "id": 5,
+      "classId": 1,
+      "courseId": 1,
+      "studentId": 1,
+      "date": "2026-10-12",
+      "present": false
+    },
+    { "id": 6, "classId": 1, "courseId": 1, "studentId": 2, "date": "2026-10-12", "present": true }
+  ]
+}

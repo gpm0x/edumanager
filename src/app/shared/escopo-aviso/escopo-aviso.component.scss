@@ -1,0 +1,40 @@
+// ============================================================================
+//  ESCOPO AVISO - "voce esta vendo apenas..."
+// ============================================================================
+//  A faixa e ESMERALDA SUAVE, nao amarela nem vermelha, de proposito: nao e um
+//  alerta e nao e um erro. Nada deu errado - o sistema esta funcionando como
+//  deveria, e so informa o recorte. Cor de aviso aqui faria o professor achar
+//  que ha problema no acesso dele.
+//
+//  O desenho repete o do .em-alert-error (barra na esquerda, icone, texto),
+//  entao as duas faixas se leem do mesmo jeito mesmo tendo pesos diferentes.
+// ----------------------------------------------------------------------------
+
+:host {
+  display: block;
+}
+
+.escopo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  border-left: 4px solid var(--em-emerald);
+  border-radius: var(--em-radius);
+  background: var(--em-emerald-tint);
+  color: var(--em-emerald);
+}
+
+.escopo__icone {
+  flex: 0 0 auto;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.escopo__texto {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  font-weight: 500;
+}

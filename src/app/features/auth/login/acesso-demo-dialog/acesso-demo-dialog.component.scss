@@ -1,0 +1,225 @@
+// ============================================================================
+//  ACESSO RAPIDO - os tres perfis da apresentacao, em cards
+// ============================================================================
+//  O desenho nao inventa nada: o circulo de icone e o mesmo do confirm-dialog
+//  e do estado vazio, o card usa o raio e a linha das telas internas, e o
+//  hover levanta com a sombra padrao. O que muda de um card para o outro e so
+//  a COR do circulo - esmeralda para quem ve tudo, coral para quem ve o que e
+//  seu -, porque a cor e o que faz a pessoa reconhecer o perfil antes de ler o
+//  rotulo.
+//
+//  A grade se ajusta ao numero de perfis (auto-fit), entao acrescentar um
+//  terceiro item na lista de acessos nao exige mexer neste arquivo. Em telas
+//  estreitas os cards passam a uma coluna so (ver media query).
+// ----------------------------------------------------------------------------
+
+.demo__title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+// Elemento + classe pelo mesmo motivo do confirm-dialog: o Material fixa
+// .mat-icon em 24px, e so um seletor mais especifico vira o circulo de 40px.
+mat-icon.demo__title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--em-coral-soft);
+  color: var(--em-coral-deep);
+  font-size: 21px;
+  overflow: visible;
+}
+
+.demo__apoio {
+  margin: 0 0 22px;
+  color: var(--em-gray);
+  font-size: 14px;
+  line-height: 1.6;
+
+  strong {
+    color: var(--em-ink);
+    font-weight: 600;
+  }
+}
+
+// ---------------------------- Os tres cards ----------------------------
+.demo__grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.demo__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 22px 14px 18px;
+  border: 1px solid var(--em-line);
+  border-radius: var(--em-radius);
+  background: var(--em-surface);
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  // O card sobe no hover. A transicao cobre tambem o estado de foco do
+  // teclado, para quem navega com Tab ver o mesmo movimento do mouse.
+  transition:
+    transform 180ms cubic-bezier(0.22, 0.68, 0.24, 1),
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--em-coral);
+    box-shadow: var(--em-shadow);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--em-coral-deep);
+    outline-offset: 2px;
+  }
+
+  // No clique o card afunda de volta: confirma que o toque foi registrado.
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.demo__icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--em-emerald-soft);
+  color: var(--em-emerald);
+
+  .mat-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+  }
+}
+
+// A cor do circulo identifica o perfil: o primeiro card (quem ve tudo) fica
+// esmeralda e o segundo coral. Usamos :nth-child porque a ordem dos perfis
+// esta na lista central, nao no CSS - e um perfil novo entra sozinho, com a
+// cor de acento seguinte.
+.demo__card:nth-child(2) .demo__icone {
+  background: var(--em-coral-soft);
+  color: var(--em-coral-deep);
+}
+
+.demo__card:nth-child(3) .demo__icone {
+  background: var(--em-amber-soft);
+  color: var(--em-amber-deep);
+}
+
+.demo__rotulo {
+  font-family: var(--em-font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--em-emerald);
+  font-variation-settings:
+    'opsz' 26,
+    'wdth' 92;
+}
+
+.demo__descricao {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--em-gray);
+}
+
+// A credencial sai na fonte monoespacada, como todo dado tecnico do sistema.
+.demo__credencial {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  padding: 5px 11px;
+  border-radius: var(--em-radius-pill);
+  background: var(--em-bg-deep);
+  font-family: var(--em-font-mono);
+  font-size: 11.5px;
+  color: var(--em-ink);
+
+  code {
+    font-family: inherit;
+  }
+}
+
+.demo__pontos {
+  color: var(--em-gray-soft);
+  letter-spacing: 0.08em;
+}
+
+// --------------------------- ENTRADA DO DIALOG ---------------------------
+// Os cards entram em sequencia, com o mesmo em-rise do resto do sistema.
+.demo__card {
+  animation: em-rise 460ms cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.demo__card:nth-child(1) {
+  animation-delay: 40ms;
+}
+.demo__card:nth-child(2) {
+  animation-delay: 110ms;
+}
+.demo__card:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+// ------------------------------ RESPONSIVO ------------------------------
+@media (max-width: 599px) {
+  // No celular tres colunas deixariam cada card com menos de 90px: os cards
+  // viram uma lista de uma coluna, com o icone ao lado do texto.
+  .demo__grade {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .demo__card {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    text-align: left;
+    flex-wrap: wrap;
+  }
+
+  .demo__icone {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+  }
+
+  // O rotulo e a descricao ocupam a coluna que sobra ao lado do icone.
+  .demo__rotulo,
+  .demo__descricao {
+    flex: 1 1 60%;
+    min-width: 0;
+  }
+
+  .demo__descricao {
+    flex-basis: 100%;
+    padding-left: 54px;
+  }
+
+  .demo__credencial {
+    margin: 0 0 0 54px;
+  }
+
+  // Sem o movimento vertical no toque: em lista, levantar a linha embaixo do
+  // dedo faz o item parecer que escapou.
+  .demo__card:hover {
+    transform: none;
+  }
+}

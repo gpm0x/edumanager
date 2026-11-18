@@ -1,0 +1,25 @@
+<!-- VIEW do dialog de confirmacao. -->
+<h2 mat-dialog-title class="confirm__title">
+  <mat-icon class="confirm__icon" [class.confirm__icon--danger]="data.danger">
+    {{ data.danger ? 'warning' : 'help' }}
+  </mat-icon>
+  {{ data.title }}
+</h2>
+
+<mat-dialog-content>
+  <p class="confirm__message">{{ data.message }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancelar()">{{ cancelText }}</button>
+
+  <!-- Em exclusao o botao fica vermelho pela classe confirm__ok--danger. -->
+  <button
+    mat-flat-button
+    type="button"
+    [class.confirm__ok--danger]="data.danger"
+    (click)="confirmar()"
+  >
+    {{ confirmText }}
+  </button>
+</mat-dialog-actions>

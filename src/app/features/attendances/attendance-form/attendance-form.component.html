@@ -1,0 +1,95 @@
+<!--
+  VIEW do formulario de frequencia.
+
+  O select de aluno comeca desabilitado: ele depende da turma (regra 6.4).
+  Escolhida a turma, ele e preenchido com quem esta matriculado nela.
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="titulo"
+    subtitle="O aluno so pode ser escolhido entre os matriculados na turma"
+  ></app-page-header>
+
+  <app-loading [loading]="carregando()" message="Carregando as turmas..."></app-loading>
+
+  @if (!carregando()) {
+    <form class="em-form-card" [formGroup]="form" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="em-alert-error">
+          <mat-icon>error</mat-icon>
+          {{ erro() }}
+        </div>
+      }
+
+      <div class="em-form-grid">
+        <p class="em-form-section">Aula</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Turma</mat-label>
+          <mat-select formControlName="classId">
+            @for (turma of turmas(); track turma.id) {
+              <mat-option [value]="turma.id">
+                {{ turma.code }}
+                @if (turma.status !== 'ativa') {
+                  ({{ turma.status }})
+                }
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>Escolha a turma para liberar a lista de alunos</mat-hint>
+          <mat-error>{{ mensagem('classId', 'A turma') }}</mat-error>
+        </mat-form-field>
+
+        <!-- SELECT EM CASCATA: sem turma, nao ha aluno para escolher. -->
+        <mat-form-field appearance="outline">
+          <mat-label>Aluno</mat-label>
+          <mat-select formControlName="studentId">
+            @for (aluno of alunosDaTurma(); track aluno.id) {
+              <mat-option [value]="aluno.id">{{ aluno.name }}</mat-option>
+            }
+          </mat-select>
+
+          <mat-hint>
+            @if (turmaEscolhida() === null) {
+              Escolha a turma primeiro
+            } @else if (carregandoAlunos()) {
+              Buscando os alunos da turma...
+            } @else if (alunosDaTurma().length === 0) {
+              Esta turma nao tem aluno matriculado
+            } @else {
+              {{ alunosDaTurma().length }} aluno(s) matriculado(s) nesta turma
+            }
+          </mat-hint>
+
+          <mat-error>{{ mensagem('studentId', 'O aluno') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Data da aula</mat-label>
+          <input matInput type="date" formControlName="date" />
+          <mat-hint>Turma, aluno e data formam um registro unico</mat-hint>
+          <mat-error>{{ mensagem('date', 'A data da aula') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Presenca</p>
+
+        <!-- present e boolean no contrato de dados: o select grava true/false. -->
+        <mat-form-field appearance="outline">
+          <mat-label>Presenca</mat-label>
+          <mat-select formControlName="present">
+            <mat-option [value]="true">Presente</mat-option>
+            <mat-option [value]="false">Ausente</mat-option>
+          </mat-select>
+          <mat-error>{{ mensagem('present', 'A presenca') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <app-form-actions
+        [saveDisabled]="form.invalid"
+        [loading]="salvando()"
+        (save)="salvar()"
+        (cancel)="fechar()"
+      ></app-form-actions>
+    </form>
+  }
+</div>

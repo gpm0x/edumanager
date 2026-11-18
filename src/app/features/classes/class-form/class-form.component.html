@@ -1,0 +1,139 @@
+<!--
+  VIEW do formulario de turma.
+
+  Repare no [disabled] dos options: curso INATIVO continua
+  aparecendo (uma turma antiga pode ter sido aberta com eles), mas nao podem
+  ser escolhidos - a menos que ja sejam a opcao gravada nesta turma.
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="titulo"
+    subtitle="A turma e a oferta de um curso: define turno, periodo e vagas"
+  ></app-page-header>
+
+  <app-loading [loading]="carregando()" message="Carregando os dados da turma..."></app-loading>
+
+  @if (!carregando()) {
+    <form class="em-form-card" [formGroup]="form" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="em-alert-error">
+          <mat-icon>error</mat-icon>
+          {{ erro() }}
+        </div>
+      }
+
+      <div class="em-form-grid">
+        <p class="em-form-section">Vinculos</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select formControlName="courseId">
+            @for (curso of cursos(); track curso.id) {
+              <mat-option
+                [value]="curso.id"
+                [disabled]="!curso.active && curso.id !== cursoEscolhido()"
+              >
+                {{ curso.name }}
+                @if (!curso.active) {
+                  (inativo)
+                }
+              </mat-option>
+            }
+          </mat-select>
+          <mat-error>{{ mensagem('courseId', 'O curso') }}</mat-error>
+        </mat-form-field>
+
+        <!--
+          PROFESSOR DA TURMA (requisito 7). Duas turmas do mesmo curso podem ter
+          professores diferentes, e e a turma que manda na frequencia - por isso
+          o responsavel fica aqui, e nao somente no curso.
+
+          Sem professor definido, a turma e tratada como do responsavel do CURSO
+          dela: assim ela nao desaparece do painel de ninguem.
+        -->
+        @if (podeEscolherProfessor) {
+          <mat-form-field appearance="outline">
+            <mat-label>Professor da turma (opcional)</mat-label>
+            <mat-select formControlName="teacherId">
+              <mat-option [value]="null">Herdar o responsavel do curso</mat-option>
+              @for (professor of professores(); track professor.id) {
+                <mat-option [value]="professor.id">{{ professor.name }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>E quem lanca a chamada desta turma</mat-hint>
+          </mat-form-field>
+        }
+
+        <p class="em-form-section">Identificacao e turno</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Codigo da turma</mat-label>
+          <input matInput formControlName="code" maxlength="20" />
+          <mat-hint>Ex: INFO-2026-1</mat-hint>
+          <mat-error>{{ mensagem('code', 'O codigo') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Turno</mat-label>
+          <mat-select formControlName="shift">
+            <mat-option value="manha">Manha</mat-option>
+            <mat-option value="tarde">Tarde</mat-option>
+            <mat-option value="noite">Noite</mat-option>
+          </mat-select>
+          <mat-error>{{ mensagem('shift', 'O turno') }}</mat-error>
+        </mat-form-field>
+
+        <p class="em-form-section">Periodo e vagas</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Inicio</mat-label>
+          <input matInput type="date" formControlName="startDate" />
+          <mat-error>{{ mensagem('startDate', 'A data de inicio') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Termino</mat-label>
+          <input matInput type="date" formControlName="endDate" />
+          <mat-error>{{ mensagem('endDate', 'A data de termino') }}</mat-error>
+        </mat-form-field>
+
+        <!--
+          Erro do GRUPO, nao de um campo: por isso le-se form.hasError() e a
+          mensagem aparece abaixo das duas datas, nao dentro de um campo.
+        -->
+        @if (form.hasError('periodoInvalido')) {
+          <div class="em-alert-error em-form-full">
+            <mat-icon>error</mat-icon>
+            A data de termino deve ser igual ou posterior a data de inicio.
+          </div>
+        }
+
+        <mat-form-field appearance="outline">
+          <mat-label>Capacidade</mat-label>
+          <input matInput type="number" formControlName="capacity" min="1" max="100" />
+          <span matTextSuffix>vagas</span>
+          <mat-hint>De 1 a 100. E o limite que recusa matricula nova</mat-hint>
+          <mat-error>{{ mensagem('capacity', 'A capacidade') }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Situacao</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="ativa">Ativa</mat-option>
+            <mat-option value="concluida">Concluida</mat-option>
+            <mat-option value="cancelada">Cancelada</mat-option>
+          </mat-select>
+          <mat-hint>So turma ativa aparece para matricular</mat-hint>
+          <mat-error>{{ mensagem('status', 'A situacao') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <app-form-actions
+        [saveDisabled]="form.invalid"
+        [loading]="salvando()"
+        (save)="salvar()"
+        (cancel)="fechar()"
+      ></app-form-actions>
+    </form>
+  }
+</div>

@@ -1,0 +1,60 @@
+// ============================================================================
+//  STATUS CHIP - a etiqueta de situacao (ativo, pago, atrasado, ...)
+// ============================================================================
+//  Na identidade "Campus Vivo" o chip e uma PASTILHA: canto totalmente
+//  arredondado, fundo suave da cor do estado, texto na versao escura da mesma
+//  cor e um ponto cheio na frente. Sem borda - o fundo suave ja separa.
+//
+//  O ponto nao e enfeite: le-se o estado pela cor de longe e pela palavra de
+//  perto. Quem nao distingue cores continua lendo o texto, que e o motivo de a
+//  etiqueta nunca ser so uma bolinha.
+// ----------------------------------------------------------------------------
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 10px;
+  border-radius: var(--em-radius-pill);
+  font-family: var(--em-font-text);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 15px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: 0 0 auto;
+  }
+}
+
+.chip--green {
+  background: var(--em-green-soft);
+  color: var(--em-green);
+}
+
+.chip--red {
+  background: var(--em-red-soft);
+  color: var(--em-red);
+}
+
+.chip--amber {
+  background: var(--em-amber-soft);
+  color: var(--em-amber-deep);
+}
+
+.chip--coral {
+  background: var(--em-coral-soft);
+  color: var(--em-coral-deep);
+}
+
+.chip--gray {
+  background: var(--em-bg-deep);
+  color: var(--em-gray);
+}

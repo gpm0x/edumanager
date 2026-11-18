@@ -1,0 +1,77 @@
+// ============================================================================
+//  EMPTY STATE - a tela quando nao existe nenhum registro
+// ============================================================================
+//  Em vez da ficha em branco com moldura tracejada da identidade anterior,
+//  agora e um PAINEL de respiro: fundo esmeralda suavissimo, malha de pontos
+//  discreta e o icone num circulo BRANCO elevado no meio.
+//
+//  A malha de pontos faz o trabalho que o tracejado fazia (dizer "aqui ainda
+//  nao tem nada") sem a aspereza da linha quebrada, e o circulo branco com
+//  sombra levanta o icone do fundo, entao o olho cai nele primeiro.
+// ----------------------------------------------------------------------------
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  margin: 22px;
+  padding: 52px 28px;
+  border-radius: var(--em-radius-lg);
+  background: var(--em-dots), var(--em-emerald-tint);
+  // A malha de pontos precisa que quem a usa declare o tamanho do padrao:
+  // 18px e o espacamento que deixa os pontos visiveis sem virar textura suja.
+  // (Uma unica medida: o segundo item do "background" acima e uma COR, e cor
+  // nao conta como camada para o background-size.)
+  background-size: 18px 18px;
+}
+
+.empty__circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--em-surface);
+  box-shadow: var(--em-shadow);
+  color: var(--em-coral-deep);
+
+  .mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.empty__title {
+  margin: 8px 0 0;
+  font-family: var(--em-font-display);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--em-emerald);
+  font-variation-settings:
+    'opsz' 24,
+    'wdth' 92;
+}
+
+.empty__message {
+  margin: 0;
+  max-width: 40em;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-gray);
+}
+
+button {
+  margin-top: 14px;
+}
+
+@media (max-width: 720px) {
+  .empty {
+    margin: 14px;
+    padding: 36px 18px;
+  }
+}

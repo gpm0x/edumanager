@@ -1,0 +1,21 @@
+/*
+ * Estilo do componente <financial> (lista de lancamentos).
+ *
+ * Quase tudo vem das classes .em-* de src/styles.scss, que valem para todas as
+ * telas do sistema. Aqui fica apenas o que e exclusivo desta tela: a linha
+ * clicavel.
+ */
+
+/*
+ * A linha inteira abre o detalhe, entao ela precisa PARECER clicavel - sem
+ * isso, o unico jeito de descobrir o clique seria tentando, e o usuario nao
+ * tenta clicar no que parece texto.
+ */
+.financial__linha {
+  cursor: pointer;
+  transition: background-color 120ms ease;
+
+  &:hover {
+    background-color: rgb(0 0 0 / 3%);
+  }
+}

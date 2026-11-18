@@ -1,0 +1,129 @@
+<!--
+  VIEW da listagem de alunos.
+
+  Repare nas chamadas aluno.getCpfFormatado() e aluno.getIdade(): sao METODOS
+  do model (o primeiro herdado de Pessoa), nao calculos escritos no template.
+-->
+<div class="em-page">
+  <app-page-header
+    title="Alunos"
+    subtitle="Cadastro dos alunos da instituicao"
+    [actionLabel]="podeCriar ? 'Novo aluno' : ''"
+    (action)="novo()"
+  ></app-page-header>
+
+  <app-escopo-aviso [texto]="avisoDeEscopo"></app-escopo-aviso>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando os alunos..."></app-loading>
+
+  @if (!carregando()) {
+    <div class="em-table-card">
+      <div class="em-table-toolbar">
+        <app-search-field
+          placeholder="Buscar por nome, CPF ou e-mail..."
+          (search)="termo.set($event)"
+        ></app-search-field>
+
+        <span class="em-spacer"></span>
+
+        <span class="em-eyebrow">
+          {{ alunosFiltrados().length }} de {{ alunos().length }} alunos
+        </span>
+      </div>
+
+      @if (alunosFiltrados().length === 0) {
+        <app-empty-state
+          icon="people"
+          title="Nenhum aluno encontrado"
+          [message]="
+            termo()
+              ? 'Nenhum aluno corresponde a busca. Tente outro termo.'
+              : podeCriar
+                ? 'Cadastre o primeiro aluno para poder matricular em uma turma.'
+                : 'Nenhum aluno esta matriculado nas turmas dos seus cursos.'
+          "
+          [actionLabel]="podeCriar ? 'Novo aluno' : ''"
+          (action)="novo()"
+        ></app-empty-state>
+      } @else {
+        <div class="em-table-scroll">
+          <table mat-table [dataSource]="alunosFiltrados()" class="em-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Aluno</th>
+              <td mat-cell *matCellDef="let aluno">
+                <strong>{{ aluno.name }}</strong>
+                <small class="em-cell-sub">{{ aluno.email }}</small>
+              </td>
+            </ng-container>
+
+            <!-- getCpfFormatado() vem da classe base Pessoa: o CPF e GRAVADO
+                 com 11 digitos puros e a mascara existe so na exibicao. -->
+            <ng-container matColumnDef="cpf">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">CPF</th>
+              <td mat-cell *matCellDef="let aluno" class="em-col-num">
+                {{ aluno.getCpfFormatado() }}
+              </td>
+            </ng-container>
+
+            <!-- getIdade() e comportamento proprio de StudentModel. -->
+            <ng-container matColumnDef="idade">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Idade</th>
+              <td mat-cell *matCellDef="let aluno" class="em-col-num">
+                {{ aluno.getIdade() }} anos
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="phone">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Telefone</th>
+              <td mat-cell *matCellDef="let aluno" class="em-col-num">{{ aluno.phone }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="situacao">
+              <th mat-header-cell *matHeaderCellDef>Situacao</th>
+              <td mat-cell *matCellDef="let aluno">
+                <app-status-chip [status]="aluno.status"></app-status-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef class="em-col-actions">Acoes</th>
+              <td mat-cell *matCellDef="let aluno" class="em-col-actions">
+                @if (podeEditar) {
+                  <button
+                    matIconButton
+                    type="button"
+                    [attr.aria-label]="'Editar ' + aluno.name"
+                    (click)="editar(aluno)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+
+                @if (podeExcluir) {
+                  <button
+                    matIconButton
+                    type="button"
+                    [attr.aria-label]="'Excluir ' + aluno.name"
+                    (click)="excluir(aluno)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+            <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

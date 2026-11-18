@@ -1,0 +1,320 @@
+// ============================================================================
+//  DASHBOARD
+// ============================================================================
+
+// ========================= FAIXA DE ABERTURA =========================
+//  Bloco esmeralda de canto largo (28px) com os arcos do sistema correndo por
+//  cima. E o unico lugar da area de trabalho que usa esmeralda cheio: serve
+//  para o dashboard ABRIR com peso, em vez de abrir com uma lista de numeros.
+//
+//  Nas outras telas o papel equivalente e do <app-page-header>, que e claro.
+//  A diferenca e proposital: o dashboard e a capa, as outras sao o conteudo.
+.dash__hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 40px 44px;
+  border-radius: var(--em-radius-xl);
+  background:
+    var(--em-arcs-wide),
+    linear-gradient(118deg, var(--em-emerald-deep) 0%, var(--em-emerald) 52%, #126044 100%);
+  box-shadow: var(--em-shadow-lg);
+  overflow: hidden;
+}
+
+.dash__hero-text {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+// A data de hoje, dentro de uma pastilha translucida. Comeca a leitura pelo
+// dado mais objetivo da tela e nao compete com a saudacao.
+.dash__data {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 6px 13px;
+  border-radius: var(--em-radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+  font-family: var(--em-font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+// A saudacao e o maior elemento tipografico das telas internas: 46px na fonte
+// de titulo, largura 90 (levemente condensada) e entrelinha curta.
+.dash__title {
+  margin: 0;
+  font-family: var(--em-font-display);
+  font-size: clamp(34px, 3.4vw, 46px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+  font-variation-settings:
+    'opsz' 48,
+    'wdth' 90;
+}
+
+.dash__subtitle {
+  margin: 14px 0 0;
+  max-width: 44ch;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+// --- Decoracao da faixa -----------------------------------------------------
+// O icone da escola dentro de dois aneis. Fica apagado (branco a 14%) e sai da
+// tela no celular: e enfeite, nao informacao.
+.dash__hero-glyph {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 124px;
+  height: 124px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+
+  .mat-icon {
+    font-size: 52px;
+    width: 52px;
+    height: 52px;
+  }
+
+  // O anel de fora, maior e mais apagado.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+// ============================== LISTAS ==============================
+// Duas colunas no desktop, uma no celular.
+.dash__listas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+.dash__lista {
+  // overflow: hidden faz o canto de 20px do .em-card cortar o cabecalho e a
+  // ultima linha da lista.
+  overflow: hidden;
+}
+
+.dash__lista-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  background: var(--em-emerald-tint);
+  border-bottom: 1px solid var(--em-line);
+}
+
+// Diferente da identidade anterior, o titulo da lista e um TITULO de verdade
+// (fonte de titulo, 16px, esmeralda) e nao um rotulo miudo em caixa alta: o
+// dashboard tem duas listas e elas precisam se anunciar.
+.dash__lista-titulo {
+  margin: 0;
+  font-family: var(--em-font-display);
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--em-emerald);
+  font-variation-settings:
+    'opsz' 20,
+    'wdth' 94;
+}
+
+// Quantidade de linhas da lista, numa pastilha monoespacada.
+.dash__lista-contagem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: var(--em-radius-pill);
+  background: var(--em-emerald);
+  font-family: var(--em-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+// A lista de atrasados conta em vermelho: e o unico numero que cobra acao.
+.dash__lista-contagem--alerta {
+  background: var(--em-red);
+}
+
+.dash__itens {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Linha da lista. O mesmo comportamento da tabela: fundo esmeralda suave e
+// barra coral na esquerda quando o ponteiro passa.
+.dash__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--em-line-soft);
+  transition:
+    background-color 140ms linear,
+    box-shadow 140ms linear;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--em-emerald-tint);
+    box-shadow: inset 4px 0 0 var(--em-coral);
+  }
+}
+
+// O circulo com a inicial do aluno. Dois tamanhos de informacao no mesmo
+// espaco: a letra identifica, a cor nao significa nada (e sempre a mesma).
+.dash__item-inicial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--em-emerald-soft);
+  color: var(--em-emerald);
+  font-family: var(--em-font-display);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  font-variation-settings:
+    'opsz' 18,
+    'wdth' 92;
+}
+
+// Na lista de atraso o circulo vira um sinal vermelho com icone.
+.dash__item-inicial--alerta {
+  background: var(--em-red-soft);
+  color: var(--em-red);
+
+  .mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.dash__item-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  // flex: 1 empurra a etiqueta de situacao para a direita da linha.
+  flex: 1 1 auto;
+
+  strong {
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--em-ink);
+  }
+}
+
+// Valor em atraso: tamanho maior, porque e o dado principal da linha.
+// O seletor repete o elemento (strong.dash__item-valor) para vencer a regra
+// de 14,5px de ".dash__item-texto strong" acima, sem precisar de !important.
+strong.dash__item-valor {
+  font-size: 16.5px;
+  color: var(--em-red);
+}
+
+.dash__item-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--em-gray);
+}
+
+// O separador entre as informacoes da linha: um ponto, nao uma barra. Some
+// visualmente e ainda separa.
+.dash__item-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--em-gray-soft);
+}
+
+// --------------------------- RESPONSIVO ---------------------------
+@media (max-width: 900px) {
+  // O enfeite sai antes do texto apertar.
+  .dash__hero-glyph {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .dash__hero {
+    padding: 28px 24px;
+    border-radius: var(--em-radius-lg);
+  }
+
+  .dash__listas {
+    grid-template-columns: 1fr;
+  }
+
+  .dash__item,
+  .dash__lista-head {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* ===================== FAIXA DE CONTA RECEM-CRIADA =====================
+ * Verde: e a unica mensagem positiva do painel. O vermelho do .em-alert-error
+ * diz "corrija"; esta diz "deu certo, siga". Ela fica no topo porque e a
+ * primeira coisa que a pessoa precisa ler ao chegar do cadastro, e pode ser
+ * fechada porque, depois de lida, viraria ruido permanente.
+ */
+.dash__boas-vindas {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-left: 4px solid var(--em-green);
+  border-radius: var(--em-radius);
+  background: var(--em-green-soft);
+  color: var(--em-green);
+  font-size: 13.5px;
+  line-height: 1.5;
+
+  .mat-icon {
+    flex: 0 0 auto;
+  }
+}
+
+.dash__boas-vindas-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

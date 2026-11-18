@@ -1,0 +1,249 @@
+// ============================================================================
+//  MINHA MATRICULA - dados, matriculas e catalogo do aluno
+// ============================================================================
+
+.mm__secao {
+  padding: 22px;
+}
+
+// O catalogo nao fica dentro de um card: cada curso ja e um card.
+.mm__secao--solta {
+  padding: 0;
+}
+
+.mm__secao-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mm__titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--em-font-display);
+  font-size: 18px;
+  color: var(--em-emerald);
+
+  mat-icon {
+    color: var(--em-coral-deep);
+  }
+}
+
+.mm__contagem {
+  min-width: 28px;
+  padding: 2px 10px;
+  border-radius: var(--em-radius-pill);
+  background: var(--em-emerald-soft);
+  color: var(--em-emerald);
+  font-family: var(--em-font-mono);
+  font-size: 13px;
+  text-align: center;
+}
+
+// ---- 1) dados cadastrais ----
+.mm__dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+
+  dd {
+    margin: 4px 0 0;
+    color: var(--em-ink);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+}
+
+.mm__dados-largo {
+  grid-column: 1 / -1;
+}
+
+.mm__nota {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 0;
+  color: var(--em-gray);
+  font-size: 13px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ---- 2) matriculas ----
+.mm__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mm__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--em-line-soft);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.mm__item-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+
+  strong {
+    color: var(--em-ink);
+  }
+}
+
+.mm__meta {
+  color: var(--em-gray);
+  font-size: 13px;
+}
+
+// ---- 3) catalogo ----
+.mm__cursos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.mm__curso {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  h3 {
+    margin: 0;
+    font-family: var(--em-font-display);
+    font-size: 17px;
+    color: var(--em-emerald);
+  }
+}
+
+.mm__curso--meu {
+  opacity: 0.85;
+}
+
+.mm__selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: var(--em-radius-pill);
+  background: var(--em-green-soft);
+  color: var(--em-green);
+  font-size: 12.5px;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+}
+
+.mm__descricao {
+  margin: 0;
+  color: var(--em-gray);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mm__numeros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: var(--em-ink);
+  font-size: 13.5px;
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    color: var(--em-gray-soft);
+  }
+}
+
+.mm__sem-turma {
+  margin: auto 0 0;
+  color: var(--em-gray);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.mm__turmas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.mm__turma {
+  // O botao vira uma linha: turma a esquerda, acao a direita.
+  height: auto !important;
+  padding: 10px 14px !important;
+  justify-content: space-between;
+
+  ::ng-deep .mdc-button__label {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}
+
+.mm__turma-texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+
+  small {
+    color: var(--em-gray);
+    font-weight: 400;
+  }
+}
+
+.mm__turma-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--em-coral-deep);
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+  }
+}

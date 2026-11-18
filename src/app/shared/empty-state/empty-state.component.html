@@ -1,0 +1,16 @@
+<!-- VIEW do estado vazio: icone, titulo, explicacao e acao opcional. -->
+<div class="empty">
+  <div class="empty__circle">
+    <mat-icon>{{ icon }}</mat-icon>
+  </div>
+
+  <h3 class="empty__title">{{ title }}</h3>
+
+  @if (message) {
+    <p class="empty__message">{{ message }}</p>
+  }
+
+  @if (actionLabel) {
+    <button mat-flat-button type="button" (click)="action.emit()">{{ actionLabel }}</button>
+  }
+</div>

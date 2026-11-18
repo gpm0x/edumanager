@@ -1,0 +1,1032 @@
+// ============================================================================
+//  EDUMANAGER - ESTILOS GLOBAIS + TEMA DO ANGULAR MATERIAL
+//  Dono deste arquivo: VITRAL (Frontend)
+// ============================================================================
+//
+//  A IDEIA DO VISUAL: "CAMPUS VIVO"
+//  --------------------------------
+//  Uma escola nao e um arquivo de papel: e um lugar onde gente circula. O
+//  visual do EduManager assume isso. Em vez de imitar uma ficha impressa, a
+//  tela imita o CAMPUS: bloco de cor cheia, luz, canto generoso e um verde
+//  institucional que sustenta tudo.
+//
+//    esmeralda   -> a ESTRUTURA. Menu lateral, faixa do dashboard, cabecalho
+//                   de tabela, titulo. E a cor que da peso e seriedade;
+//    coral       -> a ACAO. Botao de salvar, botao de criar, item aberto do
+//                   menu, anel de foco, link. Se esta coral, pode clicar;
+//    ambar       -> a ESPERA. Pendente, aviso, o que ainda vai acontecer;
+//    marfim      -> o AR. O fundo da area de trabalho e quente, nao branco,
+//                   para o branco dos cards aparecer como superficie elevada;
+//    arco        -> o MOTIVO. Arcos concentricos aparecem em toda superficie
+//                   esmeralda (menu, faixa do dashboard, login, estado vazio).
+//                   E o que faz duas telas diferentes pertencerem ao mesmo
+//                   sistema sem precisar repetir um logo;
+//    sombra      -> a SEPARACAO. O sistema separa as coisas por PROFUNDIDADE
+//                   (sombra esverdeada em camadas) e por canto arredondado,
+//                   nao por linha. O filete de 1px sobrevive apenas dentro da
+//                   tabela, onde dividir linha e funcao e nao decoracao;
+//    numero fixo -> todo numero sai em monoespacada de largura fixa, entao uma
+//                   coluna de valores alinha na virgula.
+//
+//  Tres fontes, tres papeis (carregadas em src/index.html):
+//    Bricolage Grotesque -> titulo e numero grande (grotesca de desenho
+//                           irregular, com personalidade)
+//    Instrument Sans     -> texto e interface
+//    DM Mono             -> numero, codigo, data, valor
+//
+//  ESTE ARQUIVO TEM 6 PARTES, NESTA ORDEM:
+//
+//   1) TEMA DO ANGULAR MATERIAL  -> liga o Material 3 (mixin mat.theme)
+//   2) IDENTIDADE VISUAL         -> as cores, fontes, cantos, sombras e
+//                                   texturas como variaveis CSS, e a amarracao
+//                                   delas no tema do Material
+//   3) BASE DA PAGINA            -> body, textura, foco, barra de rolagem
+//   4) ACABAMENTO DO MATERIAL    -> forma e tipografia dos componentes prontos
+//   5) CLASSES REUTILIZAVEIS     -> padrao de pagina, tabela e formulario
+//                                   (documentadas em src/app/shared/README.md)
+//   6) MOVIMENTO                 -> a entrada da tela, em uma unica animacao
+//
+// ============================================================================
+
+@use '@angular/material' as mat;
+
+// ============================================================================
+//  1) TEMA DO ANGULAR MATERIAL
+// ============================================================================
+//
+//  O Angular Material 21 usa o Material Design 3. Nessa versao o tema NAO se
+//  descreve mais com "primary / accent / warn" (isso era o Material 2): o mixin
+//  mat.theme() gera um conjunto de VARIAVEIS CSS com o prefixo --mat-sys-*
+//  (sys = system, as cores do sistema de design) e todos os componentes do
+//  Material leem essas variaveis.
+//
+//  Montamos o tema em dois passos, de proposito:
+//    - aqui embaixo, mat.theme() cria a estrutura completa de variaveis
+//      partindo de paletas prontas do Material;
+//    - na parte 2, sobrescrevemos as variaveis que importam com as cores
+//      EXATAS da identidade visual do EduManager.
+//
+//  Por que assim? Porque gerar na mao as ~13 tonalidades que o Material 3
+//  espera de cada paleta seria um arquivo gigante e impossivel de explicar.
+//  Trocando as variaveis do sistema o resultado e o mesmo, com 30 linhas
+//  legiveis: as cores do projeto valem, e quem le entende o que esta vendo.
+//
+//  As paletas escolhidas aqui combinam com a identidade de proposito: laranja
+//  puxa para o coral (que e a cor de acao) e verde puxa para o esmeralda (que e
+//  a cor de estrutura). Assim, qualquer token que esquecermos de sobrescrever
+//  cai numa cor que ainda pertence ao sistema, em vez de aparecer como uma
+//  mancha roxa ou azul no meio da tela.
+//
+//  typography recebe um mapa com dois papeis:
+//    brand-family -> titulo (Bricolage Grotesque)
+//    plain-family -> texto  (Instrument Sans)
+//  O Material usa brand nos estilos display/headline e plain no resto.
+html {
+  height: 100%;
+
+  @include mat.theme((color: (primary: mat.$orange-palette,
+        tertiary: mat.$green-palette,
+      ),
+      typography: (brand-family: 'Bricolage Grotesque',
+        plain-family: 'Instrument Sans',
+        bold-weight: 700,
+        medium-weight: 500,
+        regular-weight: 400,
+      ),
+      density: 0,
+    ));
+}
+
+// ============================================================================
+//  2) IDENTIDADE VISUAL DO EDUMANAGER
+// ============================================================================
+//
+//  Toda cor do sistema sai daqui. Nenhum componente escreve hexadecimal solto:
+//  usa var(--em-*). Se a identidade visual mudar, muda so este bloco.
+//
+//  Usamos :root (e nao html) porque :root tem especificidade maior que html,
+//  entao estas linhas vencem as variaveis geradas pelo mat.theme() acima.
+:root {
+  // --- A COR DE ESTRUTURA: esmeralda ---------------------------------------
+  // Peso institucional. Menu lateral, faixa do dashboard, cabecalho de tabela,
+  // titulo de pagina. E a cor que diz "isto e um sistema da escola".
+  --em-emerald: #0e4d3c; // esmeralda: superficie escura e texto de titulo
+  --em-emerald-deep: #083527; // esmeralda fundo: topo do gradiente, pressionado
+  --em-emerald-mid: #17664f; // esmeralda claro: hover sobre superficie escura
+  --em-emerald-soft: #e3efe9; // fundo suave (linha sob o ponteiro, chip neutro)
+  --em-emerald-tint: #f1f7f4; // fundo suavissimo (cabecalho de tabela, barra)
+
+  // --- A COR DE ACAO: coral ------------------------------------------------
+  // So aparece onde se CLICA ou onde se esta. Usada pouco, para nao perder a
+  // forca. Veja a regra de convivencia no fim de src/app/shared/README.md.
+  --em-coral: #ff6b4a; // coral vivo: marcador, borda, icone sobre fundo suave
+  --em-coral-deep: #d1402a; // coral escuro: fundo de botao e texto de link.
+  //   Precisa ser este tom, e nao o vivo: branco
+  //   sobre #FF6B4A da contraste 2,9:1 (reprova no
+  //   WCAG AA); sobre #D1402A da 4,7:1 (aprova).
+  --em-coral-soft: #ffece5; // fundo suave coral (chip, aviso, hover de acao)
+
+  // --- A COR DE ESPERA: ambar ----------------------------------------------
+  // Hoje o ambar aparece em um lugar so: a etiqueta de "pendente". As tres
+  // tonalidades ficam definidas porque a paleta e um conjunto - quando a
+  // proxima tela precisar marcar "aguardando", a cor ja esta escolhida.
+  --em-amber: #e89b1c; // ambar vivo: reservado para ponto e borda
+  --em-amber-deep: #9a6000; // ambar escuro: TEXTO (5,2:1 sobre branco)
+  --em-amber-soft: #fdf0d9; // fundo suave da etiqueta "pendente"
+
+  // --- Papel e tinta -------------------------------------------------------
+  --em-bg: #f7f3ec; // marfim: fundo da area de trabalho
+  --em-bg-deep: #efe9de; // marfim fundo: moldura de estado vazio, barra
+  --em-surface: #ffffff; // superficie elevada: card, tabela, dialog, form
+  --em-ink: #15211c; // tinta: texto forte (verde tao escuro que le preto)
+  --em-gray: #5a6861; // texto secundario, label, apoio (5,8:1 sobre branco)
+  --em-gray-soft: #8c9a92; // SO decorativo: icone inativo, separador, marca de
+  //   agua. Nunca em texto que precise ser lido.
+
+  // --- Estados -------------------------------------------------------------
+  --em-green: #15704c; // sucesso / ativo / pago
+  --em-green-soft: #dcf0e4;
+  --em-red: #b8321f; // erro / exclusao / atrasado / ausente
+  --em-red-soft: #fbe5e0;
+
+  // --- Linha ---------------------------------------------------------------
+  // Sobrou pouco uso: divisor de linha de tabela e de lista. O resto do
+  // sistema separa por sombra e por canto.
+  --em-line: #e9e2d6;
+  --em-line-soft: #f2ece2;
+
+  // --- Profundidade --------------------------------------------------------
+  // As sombras sao ESVERDEADAS (rgba do esmeralda), nunca cinza neutro: sombra
+  // cinza sobre fundo marfim suja e deixa a tela com aspecto de impressao
+  // ruim. Com o verde, a sombra parece luz filtrada.
+  //
+  // Sao TRES niveis, e a escolha entre eles diz a que distancia a coisa esta
+  // da pagina: -sm encosta (nenhum componente usa hoje), a media e a de card
+  // apoiado, e a -lg e de objeto flutuando (menu lateral, dialog, card no
+  // hover).
+  --em-shadow-sm: 0 1px 2px rgba(14, 77, 60, 0.05), 0 1px 3px rgba(14, 77, 60, 0.04);
+  --em-shadow: 0 2px 4px rgba(14, 77, 60, 0.04), 0 10px 24px -10px rgba(14, 77, 60, 0.14);
+  --em-shadow-lg: 0 4px 8px rgba(14, 77, 60, 0.05), 0 28px 56px -20px rgba(14, 77, 60, 0.26);
+  // Sombra colorida: usada SO no botao de acao, no hover. E o brilho que
+  // confirma "este e o botao principal desta tela".
+  --em-shadow-coral: 0 8px 20px -8px rgba(209, 64, 42, 0.55);
+
+  // --- Cantos --------------------------------------------------------------
+  // Generosos. Esta e a mudanca de forma que mais muda a cara do sistema: com
+  // 20px no card e 999px no chip, a tela para de parecer formulario de papel.
+  --em-radius-xs: 8px; // chip quadrado, icone pequeno
+  --em-radius-sm: 10px; // campo, botao, caixa de icone
+  --em-radius: 14px; // bloco interno, alerta
+  --em-radius-lg: 20px; // card, tabela, dialog
+  --em-radius-xl: 28px; // faixa do dashboard, painel do login
+  --em-radius-pill: 999px; // etiqueta de situacao, contador
+
+  // --- Fontes --------------------------------------------------------------
+  --em-font-display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
+  --em-font-text: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+  --em-font-mono: 'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  // --- Texturas e motivos --------------------------------------------------
+  // ARCOS: o motivo grafico do sistema. Circulos concentricos nascendo de um
+  // ponto abaixo da borda de baixo, o que na pratica desenha ARCOS subindo
+  // pela superficie. Vai sobre fundo esmeralda (menu, faixa, login).
+  --em-arcs: repeating-radial-gradient(circle at 50% 116%,
+      transparent 0 37px,
+      rgba(255, 255, 255, 0.055) 37px 38px);
+
+  // ARCOS LARGOS: a mesma ideia com espacamento maior, para superficie grande
+  // (a faixa do dashboard), onde o anel de 38px ficaria repetitivo.
+  --em-arcs-wide: repeating-radial-gradient(circle at 88% 128%,
+      transparent 0 58px,
+      rgba(255, 255, 255, 0.05) 58px 60px);
+
+  // PONTOS: malha discreta para superficie clara (moldura de estado vazio).
+  // Quem usa precisa declarar background-size: 16px 16px.
+  --em-dots: radial-gradient(circle, rgba(14, 77, 60, 0.11) 1px, transparent 1.4px);
+
+  // GRAO: um SVG minusculo (feTurbulence = ruido) repetido como imagem de
+  // fundo. Custa quase nada e tira o ar de "cor chapada" do marfim.
+  --em-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+
+  // --- Compatibilidade com os nomes antigos ---------------------------------
+  // Os 9 modulos de CRUD foram escritos usando --em-navy / --em-blue / --em-bg
+  // e, na identidade anterior, --em-ink / --em-ochre / --em-paper. TODOS esses
+  // nomes continuam valendo e apontam para a identidade nova, entao nenhuma
+  // tela precisa ser reescrita para ganhar o visual.
+  --em-navy: var(--em-emerald);
+  --em-blue: var(--em-coral-deep);
+  --em-blue-soft: var(--em-coral-soft);
+  --em-paper: var(--em-bg);
+  --em-ochre: var(--em-coral-deep);
+  --em-ochre-deep: var(--em-coral-deep);
+  --em-ochre-soft: var(--em-coral-soft);
+  --em-border: var(--em-line);
+  --em-border-strong: var(--em-line);
+  --em-shadow-lift: var(--em-shadow-lg);
+  --em-ruled: var(--em-arcs);
+
+  // --- Amarracao com o Angular Material -------------------------------------
+  // Aqui as cores do EduManager entram dentro do tema. Tudo que e componente
+  // do Material (botao, campo, dialog, tabela, menu) passa a usar nossas cores.
+  //
+  // Note que o "primary" do Material e o CORAL, e o esmeralda entra como
+  // secondary/tertiary. Isso inverte a identidade anterior de proposito: na
+  // identidade Campus Vivo o botao cheio e sempre uma ACAO (criar, salvar,
+  // confirmar), e acao e coral. O esmeralda sustenta a estrutura em volta.
+  --mat-sys-primary: var(--em-coral-deep);
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: var(--em-coral-soft);
+  --mat-sys-on-primary-container: var(--em-coral-deep);
+
+  --mat-sys-secondary: var(--em-emerald);
+  --mat-sys-on-secondary: #ffffff;
+  --mat-sys-secondary-container: var(--em-emerald-soft);
+  --mat-sys-on-secondary-container: var(--em-emerald);
+
+  --mat-sys-tertiary: var(--em-emerald);
+  --mat-sys-on-tertiary: #ffffff;
+
+  --mat-sys-error: var(--em-red);
+  --mat-sys-on-error: #ffffff;
+  --mat-sys-error-container: var(--em-red-soft);
+  --mat-sys-on-error-container: var(--em-red);
+
+  --mat-sys-surface: var(--em-surface);
+  --mat-sys-surface-container: var(--em-surface);
+  --mat-sys-surface-container-low: var(--em-surface);
+  --mat-sys-surface-container-high: var(--em-emerald-tint);
+  --mat-sys-surface-container-highest: var(--em-emerald-soft);
+  --mat-sys-background: var(--em-bg);
+
+  --mat-sys-on-surface: var(--em-ink);
+  --mat-sys-on-surface-variant: var(--em-gray);
+  --mat-sys-outline: var(--em-gray-soft);
+  --mat-sys-outline-variant: var(--em-line);
+}
+
+// ============================================================================
+//  3) BASE DA PAGINA
+// ============================================================================
+body {
+  // Tema claro fixo. O projeto nao tem modo escuro (escopo simples).
+  color-scheme: light;
+
+  margin: 0;
+  height: 100%;
+  background-color: var(--em-bg);
+  background-image: var(--em-grain);
+  color: var(--em-ink);
+  font: var(--mat-sys-body-medium);
+  font-family: var(--em-font-text);
+
+  // Desenho de fonte mais limpo em tela.
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+// Todo numero do sistema sai com algarismo de largura fixa: colunas alinhadas.
+body,
+input,
+button,
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+// --- ICONES -----------------------------------------------------------------
+// O <mat-icon> recebe a classe "material-icons" por padrao. Trocamos a fonte
+// pela versao "Rounded", de cantos arredondados, que e a unica que combina com
+// os cantos de 14px a 28px do sistema. Os NOMES dos icones sao os mesmos, e
+// "Material Icons" fica como reserva caso a primeira fonte nao carregue.
+.mat-icon.material-icons {
+  font-family: 'Material Symbols Rounded', 'Material Icons';
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'opsz' 24;
+}
+
+// --- FOCO PELO TECLADO ------------------------------------------------------
+// :focus-visible so aparece para quem navega de teclado. O anel e coral (a cor
+// de acao) e tem 3px, entao a navegacao por Tab fica obvia em qualquer tela.
+:focus-visible {
+  outline: 3px solid var(--em-coral);
+  outline-offset: 2px;
+  border-radius: var(--em-radius-sm);
+}
+
+::selection {
+  background: var(--em-coral-soft);
+  color: var(--em-coral-deep);
+}
+
+// --- BARRA DE ROLAGEM -------------------------------------------------------
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c9d6cf transparent;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c9d6cf;
+  border: 3px solid transparent;
+  border-radius: var(--em-radius-pill);
+  background-clip: content-box;
+
+  &:hover {
+    background: var(--em-gray-soft);
+    background-clip: content-box;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+// ============================================================================
+//  4) ACABAMENTO DOS COMPONENTES DO MATERIAL
+// ============================================================================
+//  O Material 3 vem com uma forma propria (botao pilula, campo de canto medio).
+//  Em vez de lutar com CSS por cima do componente, ajustamos os TOKENS que o
+//  proprio Material oferece (--mat-<componente>-...), que e a forma suportada
+//  de customizar.
+// ----------------------------------------------------------------------------
+:root {
+  // --- Botao: canto de 10px, rotulo em Instrument Sans 600 ---
+  --mat-button-filled-container-shape: var(--em-radius-sm);
+  --mat-button-outlined-container-shape: var(--em-radius-sm);
+  --mat-button-text-container-shape: var(--em-radius-sm);
+  --mat-button-tonal-container-shape: var(--em-radius-sm);
+  --mat-button-protected-container-shape: var(--em-radius-sm);
+
+  --mat-button-filled-container-height: 44px;
+  --mat-button-outlined-container-height: 44px;
+  --mat-button-text-container-height: 44px;
+  --mat-button-filled-horizontal-padding: 22px;
+  --mat-button-outlined-horizontal-padding: 20px;
+
+  --mat-button-filled-label-text-font: var(--em-font-text);
+  --mat-button-outlined-label-text-font: var(--em-font-text);
+  --mat-button-text-label-text-font: var(--em-font-text);
+  --mat-button-filled-label-text-size: 14.5px;
+  --mat-button-outlined-label-text-size: 14.5px;
+  --mat-button-text-label-text-size: 14.5px;
+  --mat-button-filled-label-text-weight: 600;
+  --mat-button-outlined-label-text-weight: 600;
+  --mat-button-text-label-text-weight: 600;
+  --mat-button-filled-label-text-tracking: 0;
+  --mat-button-outlined-label-text-tracking: 0;
+  --mat-button-text-label-text-tracking: 0;
+
+  // O botao de contorno e o botao de texto pertencem a ESTRUTURA (Cancelar,
+  // acao secundaria), entao saem em esmeralda, nao em coral.
+  --mat-button-outlined-outline-color: #cddbd4;
+  --mat-button-outlined-label-text-color: var(--em-emerald);
+  --mat-button-text-label-text-color: var(--em-emerald);
+
+  // --- Botao de icone: fica redondo e com area de toque confortavel ---
+  --mat-icon-button-state-layer-color: var(--em-emerald);
+  --mat-icon-button-icon-color: var(--em-gray);
+
+  // --- Campo de formulario: canto de 10px ---
+  --mat-form-field-outlined-container-shape: var(--em-radius-sm);
+  --mat-form-field-filled-container-shape: var(--em-radius-sm);
+  --mat-form-field-outlined-outline-color: #d9e3dd;
+  --mat-form-field-outlined-hover-outline-color: var(--em-emerald-mid);
+  --mat-form-field-outlined-focus-outline-color: var(--em-coral-deep);
+  --mat-form-field-outlined-focus-outline-width: 2px;
+  --mat-form-field-outlined-focus-label-text-color: var(--em-coral-deep);
+  --mat-form-field-outlined-label-text-color: var(--em-gray);
+  --mat-form-field-outlined-caret-color: var(--em-coral-deep);
+  --mat-form-field-outlined-label-text-font: var(--em-font-text);
+  --mat-form-field-outlined-input-text-font: var(--em-font-text);
+  --mat-form-field-leading-icon-color: var(--em-gray-soft);
+  --mat-form-field-trailing-icon-color: var(--em-gray-soft);
+  --mat-form-field-error-text-color: var(--em-red);
+
+  // --- Dialog, menu, tooltip, snackbar ---
+  --mat-dialog-container-shape: var(--em-radius-lg);
+  --mat-dialog-subhead-font: var(--em-font-display);
+  --mat-dialog-subhead-weight: 600;
+  --mat-dialog-subhead-size: 21px;
+  --mat-dialog-subhead-color: var(--em-emerald);
+  --mat-dialog-supporting-text-font: var(--em-font-text);
+
+  --mat-menu-container-shape: var(--em-radius);
+  --mat-menu-container-color: var(--em-surface);
+  --mat-menu-item-label-text-font: var(--em-font-text);
+  --mat-menu-item-label-text-size: 14px;
+  --mat-menu-item-label-text-color: var(--em-ink);
+  --mat-menu-divider-color: var(--em-line);
+
+  --mat-select-panel-background-color: var(--em-surface);
+  --mat-select-container-shape: var(--em-radius-sm);
+  --mat-option-label-text-font: var(--em-font-text);
+  --mat-option-selected-state-layer-color: var(--em-coral-soft);
+  --mat-option-selected-state-label-text-color: var(--em-coral-deep);
+
+  --mat-tooltip-container-shape: var(--em-radius-xs);
+  --mat-tooltip-container-color: var(--em-emerald);
+  --mat-tooltip-supporting-text-font: var(--em-font-text);
+
+  --mat-snack-bar-container-shape: var(--em-radius);
+  --mat-snack-bar-container-color: var(--em-emerald);
+  --mat-snack-bar-supporting-text-font: var(--em-font-text);
+  --mat-snack-bar-button-color: #8fe0bd;
+
+  // --- Tabela: sem fundo proprio (quem pinta e o .em-table-card) ---
+  --mat-table-background-color: transparent;
+  --mat-table-header-container-height: 48px;
+  --mat-table-row-item-container-height: 60px;
+  --mat-table-header-headline-font: var(--em-font-text);
+  --mat-table-row-item-label-text-font: var(--em-font-text);
+  --mat-table-row-item-outline-color: var(--em-line-soft);
+
+  // --- Paginator ---
+  --mat-paginator-container-background-color: transparent;
+  --mat-paginator-container-text-font: var(--em-font-text);
+  --mat-paginator-container-text-size: 12.5px;
+  --mat-paginator-container-text-color: var(--em-gray);
+
+  // --- Divisor e spinner ---
+  --mat-divider-color: var(--em-line);
+  --mat-progress-spinner-active-indicator-color: var(--em-coral-deep);
+
+  // --- Sidenav (o menu lateral) ---
+  --mat-sidenav-container-shape: 0;
+  --mat-sidenav-container-divider-color: transparent;
+  --mat-sidenav-scrim-color: rgba(8, 53, 39, 0.52);
+}
+
+// O cursor de "mao" em qualquer botao: detalhe pequeno, falta sentida.
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+// --- MICRO-INTERACAO DO BOTAO -----------------------------------------------
+// O botao cheio e o unico elemento do sistema que SOBE no hover e ganha brilho
+// coral. Esse e o sinal de "este e o botao principal desta tela": o olho acha o
+// que fazer em seguida sem precisar ler.
+//
+// Os seletores sao de ATRIBUTO ([mat-flat-button]) porque e assim que os
+// templates do projeto declaram o botao; as classes internas do Material podem
+// mudar de nome entre versoes, o atributo nao.
+.mat-mdc-button-base {
+  transition:
+    transform 170ms cubic-bezier(0.22, 0.68, 0.24, 1),
+    box-shadow 170ms ease,
+    background-color 140ms ease;
+}
+
+button[mat-flat-button]:not(:disabled) {
+  &:hover {
+    transform: translateY(-1px);
+    // O brilho entra por VARIAVEL, nao direto: um botao que troca de cor (o
+    // "Excluir" vermelho do confirm-dialog) so precisa redefinir
+    // --em-btn-glow, sem ter que vencer a especificidade desta regra.
+    box-shadow: var(--em-btn-glow, var(--em-shadow-coral));
+  }
+
+  // No clique o botao volta para o lugar: da a sensacao de ter sido apertado.
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+// O botao de excluir fica vermelho ao passar o ponteiro. O seletor pega o
+// aria-label porque TODA tela de lista escreve 'Excluir <nome>' nele (veja o
+// padrao em src/app/shared/README.md) - entao a regra vale nos 9 modulos sem
+// nenhum deles precisar de uma classe nova.
+button[matIconButton][aria-label^='Excluir']:hover {
+  --mat-icon-button-state-layer-color: var(--em-red);
+  --mat-icon-button-icon-color: var(--em-red);
+  color: var(--em-red);
+}
+
+// --- O PAINEL INTERNO DO MENU LATERAL ---------------------------------------
+// O Material embrulha o conteudo do <mat-sidenav> num div proprio
+// (.mat-drawer-inner-container) que tem overflow: auto. Como o nosso menu e um
+// painel FLUTUANTE com sombra (ver main-layout.component.scss), esse overflow
+// cortaria a sombra na borda da faixa.
+//
+// A regra mora aqui, no CSS global, e nao no SCSS da casca, por um motivo
+// tecnico: esse div e desenhado pelo template do MATERIAL, nao pelo nosso.
+// Com o encapsulamento emulado do Angular, ele nao recebe o atributo
+// _ngcontent do MainLayout - entao a mesma regra escrita lá nunca casaria.
+.sidebar .mat-drawer-inner-container {
+  overflow: visible;
+}
+
+// --- CABECALHO DO MENU DO USUARIO -------------------------------------------
+// O bloco com o nome e o e-mail de quem esta logado, no topo do menu suspenso
+// do cabecalho (ver main-layout.component.html).
+//
+// Mora AQUI, e nao no SCSS da casca, porque o conteudo de um <mat-menu> nao e
+// desenhado dentro do componente: o Material o move para um overlay do CDK,
+// no fim do <body>. Estilo de conteudo de overlay e, por natureza, global.
+.menu-usuario__dados {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 15px 18px;
+
+  strong {
+    font-family: var(--em-font-display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--em-emerald);
+  }
+
+  small {
+    font-family: var(--em-font-mono);
+    font-size: 11.5px;
+    color: var(--em-gray);
+  }
+}
+
+// ============================================================================
+//  5) CLASSES REUTILIZAVEIS (padrao visual que os modulos de CRUD consomem)
+// ============================================================================
+//  Documentacao de uso: src/app/shared/README.md
+//  Sao CLASSES CSS, nao componentes, para nao criar abstracao desnecessaria.
+//  NENHUMA classe mudou de nome nesta identidade: o que ja estava escrito nos
+//  9 modulos continua funcionando e ganhou o visual novo de graca.
+// ----------------------------------------------------------------------------
+
+// --- PAGINA -----------------------------------------------------------------
+// Envolve o conteudo de QUALQUER tela interna. Cuida do respiro e da largura.
+.em-page {
+  display: block;
+  padding: 32px 36px 64px;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+// Espaco vertical padrao entre os blocos da pagina.
+.em-page>*+* {
+  margin-top: 26px;
+}
+
+// --- TIPOGRAFIA -------------------------------------------------------------
+// .em-display = titulo em Bricolage Grotesque. Os eixos variaveis dao o ajuste:
+//   opsz = tamanho optico | wdth = largura das letras.
+// Largura 92 (um pouco condensada) deixa o titulo mais firme e menos "balao".
+.em-display {
+  font-family: var(--em-font-display);
+  font-weight: 600;
+  font-variation-settings:
+    'opsz' 36,
+    'wdth' 92;
+  letter-spacing: -0.02em;
+  color: var(--em-emerald);
+}
+
+// .em-eyebrow = rotulo miudo em caixa alta ("ACADEMICO", "ULTIMAS MATRICULAS").
+.em-eyebrow {
+  font-family: var(--em-font-text);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--em-gray);
+}
+
+// .em-num = numero, codigo, data ou valor. Monoespacado e alinhado.
+.em-num {
+  font-family: var(--em-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.94em;
+  letter-spacing: -0.02em;
+}
+
+// --- CARD BRANCO GENERICO ---------------------------------------------------
+// Branco sobre marfim, canto de 20px e sombra em camadas. Sem borda: o que
+// separa o card do fundo e a PROFUNDIDADE.
+.em-card {
+  background: var(--em-surface);
+  border-radius: var(--em-radius-lg);
+  box-shadow: var(--em-shadow);
+}
+
+// --- TABELA -----------------------------------------------------------------
+// .em-table-card = card branco que embrulha a tabela.
+.em-table-card {
+  position: relative;
+  background: var(--em-surface);
+  border-radius: var(--em-radius-lg);
+  box-shadow: var(--em-shadow);
+  // overflow: hidden faz o canto de 20px cortar o cabecalho da tabela e a
+  // barra de ferramentas; sem isso elas vazam pelo canto arredondado.
+  overflow: hidden;
+}
+
+// .em-table-scroll = segura a rolagem horizontal no celular, para a tabela
+// NUNCA fazer a pagina inteira rolar de lado.
+.em-table-scroll {
+  overflow-x: auto;
+}
+
+// .em-table = a <table mat-table> em si
+.em-table {
+  width: 100%;
+  background: var(--em-surface);
+
+  // O cabecalho e uma FAIXA esmeralda clara com texto esmeralda: identifica o
+  // bloco de dados e separa a tabela da barra de busca acima dela.
+  th.mat-mdc-header-cell {
+    background: var(--em-emerald-tint);
+    color: var(--em-emerald);
+    font-family: var(--em-font-text);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: none;
+    white-space: nowrap;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  td.mat-mdc-cell {
+    color: var(--em-ink);
+    font-size: 14px;
+    border-bottom: 1px solid var(--em-line-soft);
+  }
+
+  // A linha sob o ponteiro ganha fundo esmeralda suave E uma barra coral na
+  // borda esquerda: o olho encontra a linha certa de longe.
+  tr.mat-mdc-row {
+    transition: background-color 130ms linear;
+
+    &:hover td.mat-mdc-cell {
+      background: var(--em-emerald-tint);
+    }
+
+    &:hover td.mat-mdc-cell:first-child {
+      box-shadow: inset 4px 0 0 var(--em-coral);
+    }
+  }
+
+  tr.mat-mdc-row:last-child td.mat-mdc-cell {
+    border-bottom: none;
+  }
+
+  // O nome do registro (primeira coluna) e o dado que o usuario procura:
+  // sai em peso 600 e na cor de tinta cheia.
+  td.mat-mdc-cell strong {
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+}
+
+// .em-cell-sub = segunda linha dentro de uma celula (ex: a descricao embaixo do
+// nome do curso, o e-mail embaixo do nome do aluno). Economiza uma coluna
+// inteira da tabela e mantem a informacao perto do que ela explica.
+.em-cell-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--em-gray);
+
+  // Descricao longa nao pode esticar a tabela: corta com reticencias.
+  max-width: 42ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// .em-col-actions = ultima coluna, dos botoes de editar/excluir
+.em-col-actions {
+  width: 112px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+// .em-col-num = coluna de numero/valor/data: monoespacada e alinhada a direita.
+.em-col-num {
+  font-family: var(--em-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+
+// .em-table-toolbar = barra acima da tabela (campo de busca + filtros)
+.em-table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--em-surface);
+  border-bottom: 1px solid var(--em-line);
+}
+
+// .em-filter = campo de filtro dentro da .em-table-toolbar (select de situacao,
+// data da aula, turma). Largura limitada para caber vario filtro na mesma
+// barra, ao lado da busca.
+.em-filter {
+  width: 100%;
+  max-width: 190px;
+}
+
+// --- FORMULARIO -------------------------------------------------------------
+// .em-form-card = card branco do formulario
+.em-form-card {
+  display: block;
+  background: var(--em-surface);
+  border-radius: var(--em-radius-lg);
+  box-shadow: var(--em-shadow);
+  padding: 32px;
+}
+
+// .em-form-grid = grade de 2 colunas que vira 1 coluna no celular
+.em-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 24px;
+
+  // Todo campo do Material ocupa a largura inteira da sua celula.
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+
+// .em-form-full = campo que ocupa as 2 colunas (ex: endereco, descricao)
+.em-form-full {
+  grid-column: 1 / -1;
+}
+
+// .em-form-section = titulo de secao dentro de um formulario longo.
+// O quadradinho coral na frente substitui o filete da identidade anterior: e
+// mais curto de ler e repete a cor de acao.
+.em-form-section {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 10px;
+  color: var(--em-emerald);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  &::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--em-coral);
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+// --- GRADE DE CARDS (dashboard e relatorios) --------------------------------
+.em-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(236px, 1fr));
+  gap: 18px;
+}
+
+// --- MEDIDOR ----------------------------------------------------------------
+// .em-meter = barra fina de proporcao (quanto de um todo). Usada no card de
+// total e no relatorio de ocupacao de turma.
+//
+// A largura do preenchimento vem de uma variavel que o HTML define:
+//   <span class="em-meter" style="--em-meter-fill: 62%">
+// Assim a barra mostra um numero REAL calculado pela tela, nunca um enfeite.
+.em-meter {
+  display: block;
+  height: 6px;
+  border-radius: var(--em-radius-pill);
+  background: var(--em-emerald-soft);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    display: block;
+    width: var(--em-meter-fill, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--em-emerald);
+    // A barra cresce da esquerda para a direita quando a tela abre.
+    animation: em-meter-grow 900ms cubic-bezier(0.22, 0.68, 0.24, 1) both;
+  }
+}
+
+// --- PREVIA DE PARCELAS ------------------------------------------------------
+// A lista "estas sao as parcelas que vao ser geradas", mostrada ANTES de
+// gravar a matricula. Mora aqui, e nao no componente, porque aparece em DOIS
+// lugares com o mesmo desenho: o autocadastro (/criar-conta) e o formulario de
+// matricula do administrador. Escrita duas vezes, uma das duas ia divergir.
+//
+// Sao tres colunas: rotulo (elastico), vencimento e valor (fixos). O valor
+// alinhado a direita permite comparar as parcelas de bate-pronto, que e o que
+// a pessoa faz ao conferir um parcelamento.
+.em-parcelas {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--em-gray);
+  }
+
+  strong {
+    color: var(--em-ink);
+    text-align: right;
+  }
+}
+
+// O numero da parcela ("Parcela 2 de 3"), que empurra vencimento e valor para
+// a direita.
+.em-parcela-rotulo {
+  flex: 1;
+  font-weight: 600;
+  color: var(--em-ink);
+}
+
+// --- AUXILIARES DE TEXTO E ALINHAMENTO --------------------------------------
+.em-text-muted {
+  color: var(--em-gray);
+}
+
+.em-text-success {
+  color: var(--em-green);
+}
+
+.em-text-danger {
+  color: var(--em-red);
+}
+
+.em-spacer {
+  flex: 1 1 auto;
+}
+
+// .em-alert-error = mensagem de erro de regra de negocio no topo de um form.
+// A barra vermelha na esquerda e o que faz a mensagem ser vista de longe.
+.em-alert-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-left: 4px solid var(--em-red);
+  border-radius: var(--em-radius);
+  background: var(--em-red-soft);
+  color: var(--em-red);
+  font-size: 14px;
+  font-weight: 500;
+
+  .mat-icon {
+    flex: 0 0 auto;
+  }
+}
+
+// .em-alert-success = confirmacao de uma acao que deu certo (ex.: pagamento).
+// Mesmo desenho do alerta de erro, em verde.
+.em-alert-success {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-left: 4px solid var(--em-green);
+  border-radius: var(--em-radius);
+  background: var(--em-green-soft);
+  color: var(--em-green);
+  font-size: 14px;
+  font-weight: 500;
+
+  .mat-icon {
+    flex: 0 0 auto;
+  }
+}
+
+// ============================================================================
+//  6) MOVIMENTO
+// ============================================================================
+//  Uma animacao so, usada em toda tela: os blocos da pagina sobem e aparecem
+//  em sequencia (cada um 70ms depois do anterior). E o bastante para a tela
+//  parecer montada, em vez de piscar pronta. Nada se move depois disso: numa
+//  tela de trabalho, movimento repetido cansa.
+// ----------------------------------------------------------------------------
+@keyframes em-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes em-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes em-meter-grow {
+  from {
+    width: 0;
+  }
+}
+
+.em-page>* {
+  animation: em-rise 520ms cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+// A sequencia: titulo, depois cards, depois listas.
+.em-page>*:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.em-page>*:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.em-page>*:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.em-page>*:nth-child(n + 4) {
+  animation-delay: 210ms;
+}
+
+// Dentro da grade de cards, cada card entra um pouco depois do anterior.
+.em-cards-grid>* {
+  animation: em-rise 520ms cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+@for $i from 1 through 8 {
+  .em-cards-grid>*:nth-child(#{$i}) {
+    animation-delay: #{40 + $i * 50}ms;
+  }
+}
+
+// Quem pediu menos animacao no sistema operacional nao recebe nenhuma.
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+// --- RESPONSIVO -------------------------------------------------------------
+@media (max-width: 720px) {
+  .em-page {
+    padding: 20px 16px 48px;
+  }
+
+  .em-page>*+* {
+    margin-top: 18px;
+  }
+
+  .em-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .em-form-card {
+    padding: 20px;
+  }
+
+  .em-table-toolbar {
+    padding: 14px;
+  }
+
+  .em-filter {
+    max-width: none;
+  }
+}

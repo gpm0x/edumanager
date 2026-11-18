@@ -1,0 +1,147 @@
+<!--
+  VIEW da listagem do financeiro.
+
+  A barra de cima tem tres coisas: busca por aluno, filtro de situacao e o TOTAL
+  das parcelas exibidas. O total acompanha o filtro, entao filtrando por
+  "Atrasado" ele mostra exatamente quanto esta em atraso.
+-->
+<div class="em-page">
+  <app-page-header
+    title="Financeiro"
+    subtitle="Parcelas das matriculas: vencimento, valor e situacao"
+    [actionLabel]="podeCriar ? 'Nova parcela' : ''"
+    (action)="novo()"
+  ></app-page-header>
+
+  <app-escopo-aviso [texto]="avisoDeEscopo"></app-escopo-aviso>
+
+  @if (erro()) {
+    <div class="em-alert-error">
+      <mat-icon>error</mat-icon>
+      {{ erro() }}
+    </div>
+  }
+
+  <app-loading [loading]="carregando()" message="Carregando as parcelas..."></app-loading>
+
+  @if (!carregando()) {
+    <div class="em-table-card">
+      <div class="em-table-toolbar">
+        <app-search-field
+          placeholder="Buscar por aluno ou turma..."
+          (search)="termo.set($event)"
+        ></app-search-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="em-filter">
+          <mat-label>Situacao</mat-label>
+          <mat-select [value]="filtroStatus()" (valueChange)="filtroStatus.set($event)">
+            <mat-option value="todos">Todas</mat-option>
+            <mat-option value="pendente">Pendente</mat-option>
+            <mat-option value="pago">Pago</mat-option>
+            <mat-option value="vencido">Vencido</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <span class="em-spacer"></span>
+
+        <span class="em-eyebrow">
+          {{ parcelasFiltradas().length }} parcela(s) - total
+          <strong class="em-num">{{ formatarValor(totalFiltrado()) }}</strong>
+        </span>
+      </div>
+
+      @if (parcelasFiltradas().length === 0) {
+        <app-empty-state
+          icon="payments"
+          title="Nenhuma parcela encontrada"
+          [message]="
+            termo() || filtroStatus() !== 'todos'
+              ? 'Nenhuma parcela corresponde aos filtros aplicados.'
+              : 'Lance a primeira parcela de uma matricula.'
+          "
+          [actionLabel]="podeCriar ? 'Nova parcela' : ''"
+          (action)="novo()"
+        ></app-empty-state>
+      } @else {
+        <div class="em-table-scroll">
+          <table mat-table [dataSource]="parcelasFiltradas()" class="em-table">
+            <!-- O nome do aluno vem do caminho parcela > matricula > aluno. -->
+            <ng-container matColumnDef="aluno">
+              <th mat-header-cell *matHeaderCellDef>Aluno</th>
+              <td mat-cell *matCellDef="let parcela">
+                <strong>{{ nomeDoAluno(parcela) }}</strong>
+                <small class="em-cell-sub">Matricula n {{ parcela.enrollmentId }}</small>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="turma">
+              <th mat-header-cell *matHeaderCellDef>Turma</th>
+              <td mat-cell *matCellDef="let parcela">
+                <span class="em-num">{{ codigoDaTurma(parcela) }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="vencimento">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Vencimento</th>
+              <td mat-cell *matCellDef="let parcela" class="em-col-num">
+                {{ formatarData(parcela.dueDate) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="valor">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Valor</th>
+              <td mat-cell *matCellDef="let parcela" class="em-col-num">
+                <strong>{{ formatarValor(parcela.amount) }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- paidAt e null enquanto a parcela nao foi paga (regra 6.3). -->
+            <ng-container matColumnDef="pagamento">
+              <th mat-header-cell *matHeaderCellDef class="em-col-num">Pago em</th>
+              <td mat-cell *matCellDef="let parcela" class="em-col-num">
+                {{ formatarData(parcela.paidAt) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Situacao</th>
+              <td mat-cell *matCellDef="let parcela">
+                <app-status-chip [status]="parcela.status"></app-status-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef class="em-col-actions">Acoes</th>
+              <td mat-cell *matCellDef="let parcela" class="em-col-actions">
+                @if (podeEditar) {
+                  <button
+                    matIconButton
+                    type="button"
+                    aria-label="Editar parcela"
+                    (click)="editar(parcela)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+
+                @if (podeExcluir) {
+                  <button
+                    matIconButton
+                    type="button"
+                    aria-label="Excluir parcela"
+                    (click)="excluir(parcela)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="colunas"></tr>
+            <tr mat-row *matRowDef="let linha; columns: colunas"></tr>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,22 @@
+// ============================================================================
+//  SEARCH FIELD - a caixa de busca das listagens
+// ============================================================================
+//  Duas decisoes aqui, e nada mais:
+//
+//  1. LARGURA: o campo nunca ocupa a barra inteira, para sobrar espaco para os
+//     filtros que cada tela adiciona do lado.
+//  2. FORMA: a busca e o unico campo do sistema em formato de PASTILHA. Todos
+//     os outros campos tem canto de 10px. O contorno arredondado diz "isto
+//     filtra o que esta abaixo", enquanto o canto reto diz "isto e um dado que
+//     vai ser gravado" - entao a forma separa buscar de preencher.
+//
+//  O resto do visual (cor do contorno, foco coral) vem dos tokens do Material
+//  em src/styles.scss.
+// ----------------------------------------------------------------------------
+
+.search {
+  width: 100%;
+  max-width: 340px;
+
+  --mat-form-field-outlined-container-shape: var(--em-radius-pill);
+}

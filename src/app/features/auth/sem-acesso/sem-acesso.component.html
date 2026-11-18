@@ -1,0 +1,36 @@
+<!--
+  VIEW da tela de acesso negado.
+
+  Tres informacoes, nesta ordem: QUE foi negado, COM QUAL perfil o usuario esta
+  logado, e o caminho de volta. Nada mais: a tela nao deve sugerir contorno.
+-->
+<div class="em-page">
+  <div class="negado">
+    <span class="negado__selo" aria-hidden="true">
+      <mat-icon>lock</mat-icon>
+    </span>
+
+    <p class="em-eyebrow negado__eyebrow">Acesso restrito</p>
+
+    @if (tentouGerenciar) {
+      <h1 class="negado__titulo">Voce pode consultar, mas nao alterar</h1>
+      <p class="negado__texto">
+        Seu perfil (<strong>{{ perfil }}</strong
+        >) abre {{ oQueFoiNegado }} para consulta, porem nao pode cadastrar, editar nem excluir
+        aqui.
+      </p>
+    } @else {
+      <h1 class="negado__titulo">Esta area nao e do seu perfil</h1>
+      <p class="negado__texto">
+        Seu perfil (<strong>{{ perfil }}</strong
+        >) nao tem acesso a {{ oQueFoiNegado }}. Se voce precisa consultar esta informacao, peca ao
+        administrador da escola.
+      </p>
+    }
+
+    <button mat-flat-button type="button" (click)="irParaOPainel()">
+      <mat-icon>arrow_back</mat-icon>
+      Voltar ao painel
+    </button>
+  </div>
+</div>

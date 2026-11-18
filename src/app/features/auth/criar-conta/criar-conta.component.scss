@@ -1,0 +1,471 @@
+// ============================================================================
+//  CRIAR CONTA - a mesma capa do login, com o formulario mais longo
+// ============================================================================
+//  Reaproveita a composicao da tela de login (painel esmeralda + card branco
+//  flutuante) porque entrar e criar conta sao a MESMA porta: trocar o visual
+//  entre as duas faria a pessoa achar que mudou de site no meio do caminho.
+//
+//  A diferenca e o conteudo do painel escuro. No login ele apresenta o sistema
+//  ("o que isto e"); aqui ele responde "o que eu ganho me cadastrando", porque
+//  essa e a pergunta de quem esta diante de oito campos em branco.
+// ----------------------------------------------------------------------------
+
+.conta {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  min-height: 100vh;
+  background: var(--em-bg);
+}
+
+// ======================== PAINEL ESMERALDA ========================
+.conta__aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 60px 56px 48px;
+  overflow: hidden;
+  background:
+    var(--em-arcs),
+    linear-gradient(145deg, var(--em-emerald-deep) 0%, var(--em-emerald) 55%, #126044 100%);
+  color: rgba(255, 255, 255, 0.76);
+
+  // Os mesmos dois clarões do login: coral embaixo, ambar em cima.
+  &::before {
+    content: '';
+    position: absolute;
+    right: -18%;
+    bottom: -32%;
+    width: 78%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 107, 74, 0.36), transparent 68%);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: -14%;
+    top: -22%;
+    width: 52%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232, 155, 28, 0.24), transparent 70%);
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// --- Marca e tipografia: os mesmos eixos variaveis do login ---
+.conta__mark,
+.conta__brand-name,
+.conta__titulo {
+  font-family: var(--em-font-display);
+  font-variation-settings:
+    'opsz' 26,
+    'wdth' 92;
+}
+
+.conta__brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.conta__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border-radius: 15px;
+  background: linear-gradient(145deg, var(--em-coral) 0%, var(--em-coral-deep) 100%);
+  box-shadow: 0 8px 18px -8px rgba(209, 64, 42, 0.85);
+  color: #ffffff;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.conta__brand-name {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+}
+
+.conta__pitch {
+  max-width: 19em;
+}
+
+.conta__eyebrow {
+  margin: 0 0 18px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #ffb49e;
+}
+
+.conta__headline {
+  margin: 0;
+  font-family: var(--em-font-display);
+  font-size: clamp(32px, 3.3vw, 46px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  font-variation-settings:
+    'opsz' 64,
+    'wdth' 88;
+
+  em {
+    font-style: normal;
+    color: #ffb49e;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 7px;
+    text-decoration-color: rgba(255, 107, 74, 0.55);
+  }
+}
+
+.conta__lede {
+  margin: 20px 0 0;
+  max-width: 32em;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.64);
+}
+
+// --- O que a conta libera ---
+.conta__beneficios {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 18px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.07);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  .mat-icon {
+    flex: 0 0 auto;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #ffb49e;
+  }
+}
+
+.conta__credit {
+  margin: 0;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+// ======================== PAINEL MARFIM ========================
+.conta__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 44px 40px;
+  background: var(--em-bg) var(--em-grain);
+  // O formulario e longo: no desktop ele rola dentro do proprio painel, em vez
+  // de esticar a pagina e levar o painel esmeralda junto.
+  overflow-y: auto;
+}
+
+.conta__card {
+  width: 100%;
+  max-width: 560px;
+  padding: 40px;
+  border-radius: var(--em-radius-xl);
+  background: var(--em-surface);
+  box-shadow: var(--em-shadow-lg);
+  animation: em-rise 700ms cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.conta__brand--compacta {
+  display: none;
+  margin-bottom: 28px;
+}
+
+.conta__head {
+  margin-bottom: 26px;
+}
+
+.conta__eyebrow--escuro {
+  color: var(--em-coral-deep);
+}
+
+.conta__titulo {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--em-emerald);
+}
+
+.conta__apoio {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--em-gray);
+
+  // O link para entrar sai na cor de acao: quem ja tem conta precisa achar
+  // essa saida rapido, sem ler o formulario inteiro primeiro.
+  a {
+    color: var(--em-coral-deep);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(209, 64, 42, 0.35);
+
+    &:hover {
+      border-bottom-color: var(--em-coral-deep);
+    }
+  }
+}
+
+// -------------------------- Formulario --------------------------
+.conta__form {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+// Titulo de secao dentro do formulario: o mesmo desenho do .em-form-section
+// das telas internas (quadradinho coral + rotulo miudo).
+.conta__secao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 12px;
+  color: var(--em-emerald);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  &::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--em-coral);
+  }
+
+  &:first-of-type {
+    margin-top: 6px;
+  }
+}
+
+// Par de campos lado a lado (CPF + nascimento, senha + confirmacao).
+.conta__dupla {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+
+.conta__submit {
+  width: 100%;
+  height: 52px;
+  margin-top: 20px;
+  font-size: 15.5px;
+}
+
+mat-spinner {
+  --mat-progress-spinner-active-indicator-color: #ffffff;
+  margin: 0 auto;
+}
+
+// Nota explicando que a conta criada aqui e de aluno.
+// ==================== ESCOLHA DO CURSO ====================
+// Tres estados, cada um com a forma que corresponde ao que esta acontecendo:
+// carregando (texto com spinner), sem turma aberta (faixa ambar de espera) e
+// turma escolhida (bloco de resumo em marfim). O ambar e a cor de "aguarde" no
+// resto do sistema, e nao vermelho: catalogo vazio nao e erro da pessoa.
+
+.conta__curso-carregando {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  color: var(--em-gray);
+}
+
+.conta__sem-curso {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-bottom: 4px;
+  padding: 13px 16px;
+  border-left: 4px solid var(--em-amber);
+  border-radius: var(--em-radius);
+  background: var(--em-amber-soft);
+  color: var(--em-amber-deep);
+  font-size: 12.5px;
+  line-height: 1.5;
+
+  .mat-icon {
+    flex: 0 0 auto;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Carga horaria e preco, logo abaixo do select. Sobem junto ao campo (margem
+// negativa) porque pertencem ao curso escolhido, nao ao campo seguinte.
+.conta__curso-info {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: -10px 0 14px 2px;
+  font-size: 12.5px;
+  color: var(--em-gray);
+}
+
+.conta__curso-sep {
+  color: var(--em-gray-soft);
+}
+
+// Resumo da turma: o que a pessoa esta de fato contratando, antes de enviar.
+/*
+ * A caixa do resumo da TURMA e a da previa das PARCELAS sao a mesma caixa, de
+ * proposito: as duas respondem "confira o que voce escolheu", e devem parecer
+ * irmas. Um seletor para as duas, em vez da mesma caixa escrita duas vezes.
+ */
+.conta__turma,
+.conta__financeiro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--em-line);
+  border-radius: var(--em-radius);
+  background: var(--em-bg);
+}
+
+.conta__turma-linha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--em-gray);
+
+  strong {
+    color: var(--em-ink);
+    font-weight: 600;
+  }
+
+  .mat-icon {
+    flex: 0 0 auto;
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    color: var(--em-emerald);
+  }
+}
+
+.conta__nota {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 13px 16px;
+  border-radius: var(--em-radius);
+  background: var(--em-emerald-tint);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--em-gray);
+
+  strong {
+    color: var(--em-emerald);
+    font-weight: 600;
+  }
+
+  .mat-icon {
+    flex: 0 0 auto;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--em-emerald);
+  }
+}
+
+// --------------------------- RESPONSIVO ---------------------------
+@media (max-width: 1024px) {
+  .conta {
+    grid-template-columns: 1fr;
+  }
+
+  // O painel de apresentacao sai: no celular a pessoa quer o formulario.
+  .conta__aside {
+    display: none;
+  }
+
+  .conta__brand--compacta {
+    display: flex;
+  }
+
+  .conta__panel {
+    padding: 28px 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .conta__card {
+    padding: 26px 20px;
+    border-radius: var(--em-radius-lg);
+    box-shadow: var(--em-shadow);
+  }
+
+  // Campo lado a lado nao cabe em tela estreita: vira uma coluna.
+  .conta__dupla {
+    grid-template-columns: 1fr;
+  }
+
+  .conta__titulo {
+    font-size: 25px;
+  }
+}
+
+/* ===================== CONDICAO DE PAGAMENTO =====================
+ * A previa das parcelas e uma grade de tres colunas: rotulo (elastico),
+ * vencimento e valor (fixos). O valor alinhado a direita permite comparar as
+ * parcelas de bate-pronto, que e o que a pessoa faz ao conferir um
+ * parcelamento.
+ *
+ * O aviso "nada e cobrado agora" reaproveita .conta__nota, que ja e a caixa de
+ * recado desta tela - uma caixa so, e nao duas parecidas.
+ */
+/* O aviso dentro da caixa da previa: a mesma nota, sem a margem de cima. */
+.conta__nota--compacta {
+  margin-top: 4px;
+}

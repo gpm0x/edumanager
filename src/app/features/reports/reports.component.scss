@@ -1,0 +1,48 @@
+/*
+ * Estilo do componente <reports>.
+ *
+ * Quase todo o visual desta tela vem das classes .em-* de src/styles.scss
+ * (.em-page, .em-table-card, .em-table-toolbar, .em-cards-grid, .em-meter) -
+ * as mesmas que os 9 modulos de CRUD usam. Por isso este arquivo tem poucas
+ * linhas: so o que e exclusivo do relatorio mora aqui.
+ *
+ * O que e exclusivo: a OCUPACAO DA TURMA. O relatorio 10.2 e o unico lugar do
+ * sistema onde uma proporcao aparece fora de um card de total (ela precisa
+ * ficar na barra de ferramentas, ao lado do seletor de turma), entao a barra
+ * ganha largura e cor proprias aqui.
+ */
+
+.rel__ocupacao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+  min-width: 190px;
+}
+
+.rel__ocupacao-barra {
+  width: 100%;
+}
+
+/*
+ * Turma com 85% ou mais das vagas ocupadas: a barra vira vermelha.
+ *
+ * O ::before e o preenchimento da barra (definido em .em-meter, em
+ * src/styles.scss); pintamos so ele, para a trilha de tras continuar neutra e
+ * o contraste entre "ocupado" e "livre" ficar legivel.
+ */
+.rel__ocupacao-barra--cheia {
+  background: var(--em-red-soft);
+
+  &::before {
+    background: var(--em-red);
+  }
+}
+
+@media (max-width: 720px) {
+  /* No celular a barra ocupa a largura inteira da barra de ferramentas. */
+  .rel__ocupacao {
+    align-items: stretch;
+    width: 100%;
+  }
+}

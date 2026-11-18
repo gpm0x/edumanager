@@ -1,0 +1,444 @@
+// ============================================================================
+//  LOGIN - dois painieis: esmeralda a esquerda, marfim a direita
+// ============================================================================
+//  A tela de login e a unica do sistema que pode ser composta como uma CAPA.
+//  Entao ela usa os dois lados da identidade lado a lado: o painel esmeralda
+//  apresenta o sistema, o lado marfim recebe o formulario num card branco
+//  flutuante.
+//
+//  O motivo dos arcos (--em-arcs) aparece aqui no maior tamanho que tem em
+//  todo o sistema, somado a dois clarões de cor (coral e ambar) que vazam pelo
+//  canto. E a tela que o visitante ve primeiro: ela pode ser a mais decorada.
+//
+//  Abaixo de 960px o painel esmeralda e removido (display: none) e sobra o
+//  formulario centralizado, com a marca compacta no topo do card.
+// ----------------------------------------------------------------------------
+
+.login {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  min-height: 100vh;
+  background: var(--em-bg);
+}
+
+// ======================== PAINEL ESMERALDA ========================
+.login__aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 44px;
+  padding: 60px 60px 48px;
+  overflow: hidden;
+  background:
+    var(--em-arcs),
+    linear-gradient(145deg, var(--em-emerald-deep) 0%, var(--em-emerald) 55%, #126044 100%);
+  color: rgba(255, 255, 255, 0.76);
+
+  // Clarao CORAL no canto de baixo e clarao AMBAR no de cima: as duas cores de
+  // acento do sistema entram aqui como luz, nao como bloco. Sem eles o painel
+  // esmeralda fica com cara de retangulo verde.
+  &::before {
+    content: '';
+    position: absolute;
+    right: -18%;
+    bottom: -32%;
+    width: 78%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 107, 74, 0.38), transparent 68%);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: -14%;
+    top: -22%;
+    width: 52%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232, 155, 28, 0.26), transparent 70%);
+    pointer-events: none;
+  }
+
+  // Tudo que esta dentro fica acima dos clarões.
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// ------------------------------ Marca ------------------------------
+// Os elementos da tela que saem na fonte de TITULO (monograma, nome da marca,
+// numeros do projeto e titulo do formulario) compartilham familia e eixos
+// variaveis. Declarar uma vez, em vez de repetir em cada regra, e o que mantem
+// este arquivo dentro do orcamento de CSS por componente do projeto (4 kB,
+// definido em angular.json). O .login__headline fica de fora: ele usa largura
+// 88 e tamanho optico 72, proprios dele.
+.login__mark,
+.login__brand-name,
+.login__fact dd,
+.login__titulo {
+  font-family: var(--em-font-display);
+  font-variation-settings:
+    'opsz' 26,
+    'wdth' 92;
+}
+
+.login__brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+// Monograma: a letra E em branco dentro de um quadrado coral arredondado.
+// E o mesmo objeto do topo do menu lateral - o sistema repete a marca em vez
+// de desenhar uma versao diferente para cada tela.
+.login__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border-radius: 15px;
+  background: linear-gradient(145deg, var(--em-coral) 0%, var(--em-coral-deep) 100%);
+  box-shadow: 0 8px 18px -8px rgba(209, 64, 42, 0.85);
+  color: #ffffff;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.login__brand-name {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+}
+
+// --------------------------- Apresentacao ---------------------------
+.login__pitch {
+  max-width: 20em;
+}
+
+.login__eyebrow {
+  margin: 0 0 20px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  // Pessego claro: e o coral clareado o suficiente para ser lido sobre o
+  // esmeralda. O coral cheio, nesse tamanho, vibraria no fundo verde.
+  color: #ffb49e;
+}
+
+// O titulo e o maior elemento tipografico de todo o sistema: ate 54px na fonte
+// de titulo, largura 88 (condensada) e entrelinha de 1. O <em> dentro dele sai
+// em pessego com sublinhado.
+.login__headline {
+  margin: 0;
+  font-family: var(--em-font-display);
+  font-size: clamp(36px, 3.9vw, 54px);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  font-variation-settings:
+    'opsz' 72,
+    'wdth' 88;
+
+  em {
+    font-style: normal;
+    color: #ffb49e;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 7px;
+    text-decoration-color: rgba(255, 107, 74, 0.55);
+  }
+}
+
+.login__lede {
+  margin: 22px 0 0;
+  max-width: 34em;
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.64);
+}
+
+// ------------------------- Numeros do projeto -------------------------
+// Tres pastilhas translucidas em vez de tres colunas soltas: viram objetos
+// apoiados no painel, no mesmo desenho das pastilhas do menu lateral.
+.login__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.login__fact {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+
+  dt {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+  }
+}
+
+.login__credit {
+  margin: 0;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+// ======================== PAINEL MARFIM ========================
+.login__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+  background: var(--em-bg) var(--em-grain);
+}
+
+// O formulario e um CARD BRANCO flutuante, nao um bloco solto sobre o marfim.
+// E a mesma superficie elevada das telas internas: quem entra no sistema ja ve
+// o material com que vai trabalhar depois.
+.login__card {
+  width: 100%;
+  max-width: 424px;
+  padding: 40px;
+  border-radius: var(--em-radius-xl);
+  background: var(--em-surface);
+  box-shadow: var(--em-shadow-lg);
+}
+
+// A marca compacta existe apenas no celular (ver media query no fim).
+.login__brand--compacta {
+  display: none;
+  margin-bottom: 30px;
+}
+
+.login__head {
+  margin-bottom: 28px;
+}
+
+// No card branco o rotulo miudo sai na cor de acao, nao em pessego.
+.login__eyebrow--escuro {
+  color: var(--em-coral-deep);
+}
+
+.login__titulo {
+  margin: 0;
+  font-size: 31px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--em-emerald);
+}
+
+.login__apoio {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-gray);
+}
+
+// -------------------------- Formulario --------------------------
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+// O botao de entrar ocupa a largura inteira do card: e a unica acao da tela,
+// entao nao precisa dividir espaco com nada.
+.login__submit {
+  width: 100%;
+  height: 52px;
+  margin-top: 18px;
+  font-size: 15.5px;
+}
+
+// ---------------- Aviso do acesso de demonstracao ----------------
+// Faixa AMBAR, nao verde nem vermelha: nao e sucesso ("deu certo") nem erro
+// ("corrija"). E uma NOTA sobre o estado do formulario - os campos foram
+// preenchidos por um atalho -, e o ambar e a cor de "preste atencao nisto" no
+// resto do sistema (a etiqueta "pendente" usa a mesma).
+.login__demo-aviso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 14px 18px;
+  border-left: 4px solid var(--em-amber);
+  border-radius: var(--em-radius);
+  background: var(--em-amber-soft);
+  color: var(--em-amber-deep);
+  font-size: 13.5px;
+  line-height: 1.5;
+
+  strong {
+    font-weight: 600;
+  }
+
+  .mat-icon {
+    flex: 0 0 auto;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ------------- Botao que reabre a escolha de perfil -------------
+// E um <button> (precisa ser: nao navega para lugar nenhum) pintado como link
+// discreto. Fica abaixo do caminho de cadastro porque e a acao MENOS
+// importante da tela: so serve na apresentacao.
+.login__demo-link {
+  margin: 14px 0 0;
+  text-align: center;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border: 1px solid var(--em-line);
+    border-radius: var(--em-radius-pill);
+    background: transparent;
+    color: var(--em-gray);
+    font-family: inherit;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      background-color 160ms ease;
+
+    &:hover {
+      border-color: var(--em-coral);
+      background: var(--em-coral-soft);
+      color: var(--em-coral-deep);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--em-coral-deep);
+      outline-offset: 2px;
+    }
+  }
+
+  .mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+  }
+}
+
+// ------------------------ Link de autocadastro ------------------------
+.login__cadastro {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--em-gray);
+
+  a {
+    color: var(--em-coral-deep);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(209, 64, 42, 0.35);
+
+    &:hover {
+      border-bottom-color: var(--em-coral-deep);
+    }
+  }
+}
+
+// O spinner do botao precisa ser claro para aparecer sobre o coral.
+mat-spinner {
+  --mat-progress-spinner-active-indicator-color: #ffffff;
+  margin: 0 auto;
+}
+
+// ========================= ENTRADA DA TELA =========================
+// Os blocos sobem em sequencia. E a unica animacao da tela.
+.login__brand,
+.login__pitch,
+.login__facts,
+.login__credit,
+.login__head,
+.login__form {
+  animation: em-rise 680ms cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.login__brand {
+  animation-delay: 60ms;
+}
+.login__pitch {
+  animation-delay: 170ms;
+}
+.login__facts {
+  animation-delay: 280ms;
+}
+.login__credit {
+  animation-delay: 360ms;
+}
+.login__head {
+  animation-delay: 210ms;
+}
+.login__form {
+  animation-delay: 310ms;
+}
+
+// O card inteiro tambem entra, um pouco antes do conteudo dele.
+.login__card {
+  animation: em-rise 760ms cubic-bezier(0.22, 0.68, 0.24, 1) both;
+  animation-delay: 100ms;
+}
+
+// --------------------------- RESPONSIVO ---------------------------
+@media (max-width: 960px) {
+  .login {
+    grid-template-columns: 1fr;
+  }
+
+  // O painel de apresentacao sai: no celular o usuario quer o campo de login.
+  .login__aside {
+    display: none;
+  }
+
+  .login__brand--compacta {
+    display: flex;
+  }
+
+  .login__panel {
+    padding: 28px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  // No celular estreito o card perde a moldura e passa a usar a largura toda:
+  // sombra e canto largo num espaco de 360px apertariam o formulario.
+  .login__card {
+    padding: 28px 22px;
+    border-radius: var(--em-radius-lg);
+    box-shadow: var(--em-shadow);
+  }
+}

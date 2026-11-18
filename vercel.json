@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "angular",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/edumanager/browser",
+  "rewrites": [
+    { "source": "/api/:_colecao/:_id", "destination": "/api/server?_colecao=:_colecao&_id=:_id" },
+    { "source": "/api/:_colecao", "destination": "/api/server?_colecao=:_colecao" },
+    { "source": "/api", "destination": "/api/server" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

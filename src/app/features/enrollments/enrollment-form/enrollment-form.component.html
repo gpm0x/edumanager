@@ -1,0 +1,187 @@
+<!--
+  VIEW do formulario de matricula.
+
+  Os dois selects sao a integridade referencial do sistema: so oferecem ids que
+  vieram da API. Aluno inativo e turma nao-ativa aparecem desabilitados (a nao
+  ser que ja sejam o valor gravado nesta matricula, no caso da edicao).
+-->
+<div class="em-page">
+  <app-page-header
+    [title]="titulo"
+    subtitle="O sistema recusa matricula repetida e turma sem vaga"
+  ></app-page-header>
+
+  <app-loading [loading]="carregando()" message="Carregando alunos e turmas..."></app-loading>
+
+  @if (!carregando()) {
+    <form class="em-form-card" [formGroup]="form" (ngSubmit)="salvar()">
+      @if (erro()) {
+        <div class="em-alert-error">
+          <mat-icon>error</mat-icon>
+          {{ erro() }}
+        </div>
+      }
+
+      <div class="em-form-grid">
+        <p class="em-form-section">Quem e onde</p>
+
+        <!--
+          O campo de aluno sai da tela para o perfil ALUNO: ele esta
+          matriculando a si mesmo, e um select de alunos ali deixaria ele
+          matricular um colega. O id vai preenchido pelo componente.
+        -->
+        @if (!ehAluno) {
+          <mat-form-field appearance="outline">
+            <mat-label>Aluno</mat-label>
+            <mat-select formControlName="studentId">
+              @for (aluno of alunos(); track aluno.id) {
+                <mat-option
+                  [value]="aluno.id"
+                  [disabled]="aluno.status !== 'ativo' && aluno.id !== alunoEscolhido"
+                >
+                  {{ aluno.name }}
+                  @if (aluno.status !== 'ativo') {
+                    (inativo)
+                  }
+                </mat-option>
+              }
+            </mat-select>
+            <mat-error>{{ mensagem('studentId', 'O aluno') }}</mat-error>
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline">
+          <mat-label>Turma</mat-label>
+          <mat-select formControlName="classId">
+            @for (turma of turmas(); track turma.id) {
+              <mat-option
+                [value]="turma.id"
+                [disabled]="turma.status !== 'ativa' && turma.id !== turmaEscolhidaId"
+              >
+                {{ turma.code }} - {{ nomeDoCurso(turma) }}
+                @if (turma.status !== 'ativa') {
+                  ({{ turma.status }})
+                }
+              </mat-option>
+            }
+          </mat-select>
+          <mat-error>{{ mensagem('classId', 'A turma') }}</mat-error>
+        </mat-form-field>
+
+        <!--
+          Assim que a turma e escolhida, a tela ja mostra a capacidade dela.
+          O numero de vagas ocupadas e conferido na API no momento de salvar
+          (regra 6.2) - aqui o aviso serve so para o usuario nao ser pego de
+          surpresa depois de preencher tudo.
+        -->
+        @if (turmaEscolhida()) {
+          <p class="em-form-full em-text-muted">
+            A turma {{ turmaEscolhida()!.code }} tem
+            <strong class="em-num">{{ turmaEscolhida()!.capacity }}</strong> vagas no total. O
+            sistema confere as vagas livres no momento de salvar.
+          </p>
+        }
+
+        <p class="em-form-section">Dados da matricula</p>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Data da matricula</mat-label>
+          <input matInput type="date" formControlName="enrollmentDate" />
+          <mat-error>{{ mensagem('enrollmentDate', 'A data da matricula') }}</mat-error>
+        </mat-form-field>
+
+        <!--
+          A situacao e campo de quem administra. O aluno nao escolhe se a
+          propria matricula esta ativa: ela nasce PENDENTE e passa a ativa
+          quando a escola confirma o pagamento.
+        -->
+        @if (podeEscolherStatus) {
+          <mat-form-field appearance="outline">
+            <mat-label>Situacao</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="pendente">Pendente</mat-option>
+              <mat-option value="ativa">Ativa</mat-option>
+              <mat-option value="concluida">Concluida</mat-option>
+              <mat-option value="cancelada">Cancelada</mat-option>
+            </mat-select>
+            <mat-hint>So a matricula ativa ocupa vaga na turma</mat-hint>
+            <mat-error>{{ mensagem('status', 'A situacao') }}</mat-error>
+          </mat-form-field>
+        }
+      </div>
+
+      <!--
+        ===================== CONDICAO DE PAGAMENTO =====================
+        So na CRIACAO (requisito 6): e no momento da matricula que o aluno
+        escolhe como vai pagar. Na edicao o bloco nao aparece, porque mexer no
+        combinado de uma matricula existente e assunto da tela de Lancamentos.
+      -->
+      @if (id === null && cursoDaTurmaEscolhida()) {
+        <div class="em-form-grid">
+          <p class="em-form-section">Como o aluno vai pagar</p>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Condicao</mat-label>
+            <mat-select formControlName="condition">
+              <mat-option value="avista">A vista - valor integral</mat-option>
+              <mat-option value="parcelado">Parcelado</mat-option>
+            </mat-select>
+            <mat-hint>Valor do curso: {{ formatarValor(valorTotal()) }}</mat-hint>
+          </mat-form-field>
+
+          @if (ehParcelado()) {
+            <mat-form-field appearance="outline">
+              <mat-label>Parcelas</mat-label>
+              <mat-select formControlName="installments">
+                @for (quantidade of opcoesDeParcelas(); track quantidade) {
+                  <mat-option [value]="quantidade">{{ quantidade }}x</mat-option>
+                }
+              </mat-select>
+              <mat-hint>Limite configurado neste curso</mat-hint>
+            </mat-form-field>
+          }
+
+          <mat-form-field appearance="outline">
+            <mat-label>Forma informada</mat-label>
+            <mat-select formControlName="method">
+              <mat-option value="pix">PIX</mat-option>
+              <mat-option value="dinheiro">Dinheiro</mat-option>
+              <mat-option value="cartao">Cartao</mat-option>
+            </mat-select>
+            <mat-hint>Nao confirma pagamento: so registra a combinacao</mat-hint>
+          </mat-form-field>
+
+          <!-- PREVIA: as parcelas que vao ser geradas, antes de gravar. -->
+          @if (previaDasParcelas().length > 0) {
+            <div class="em-form-full matricula__previa">
+              <p class="em-eyebrow">Parcelas que serao geradas (todas pendentes)</p>
+
+              <ul class="em-parcelas">
+                @for (parcela of previaDasParcelas(); track parcela.number) {
+                  <li>
+                    <span class="em-parcela-rotulo">
+                      @if (ehParcelado()) {
+                        Parcela {{ parcela.number }} de {{ previaDasParcelas().length }}
+                      } @else {
+                        Pagamento unico
+                      }
+                    </span>
+                    <span class="em-num">{{ formatarData(parcela.dueDate) }}</span>
+                    <strong class="em-num">{{ formatarValor(parcela.amount) }}</strong>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+
+      <app-form-actions
+        [saveDisabled]="form.invalid"
+        [loading]="salvando()"
+        (save)="salvar()"
+        (cancel)="fechar()"
+      ></app-form-actions>
+    </form>
+  }
+</div>
