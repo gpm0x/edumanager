@@ -2,19 +2,19 @@
   "users": [
     {
       "id": 1,
-      "name": "Carlos Eduardo Nunes",
+      "name": "Administrador do Sistema",
       "email": "admin@edumanager.com.br",
       "login": "admin",
-      "password": "admin123",
+      "password": "Admin@2025",
       "role": "admin",
       "active": true
     },
     {
       "id": 2,
-      "name": "Ana Clara Martinss",
-      "email": "ana.souza@aluno.edumanager.com.br",
+      "name": "Maria Souza",
+      "email": "maria.souza@aluno.edumanager.com.br",
       "login": "aluno",
-      "password": "123456",
+      "password": "Aluno@2025",
       "role": "aluno",
       "active": true,
       "studentId": 1
@@ -31,10 +31,10 @@
     },
     {
       "id": 4,
-      "name": "Carlos Eduardo Nunes",
+      "name": "João Pedro Lima",
       "email": "professor@edumanager.com.br",
       "login": "professor",
-      "password": "prof123",
+      "password": "Prof@2025",
       "role": "professor",
       "active": true
     }
