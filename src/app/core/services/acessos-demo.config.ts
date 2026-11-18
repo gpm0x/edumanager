@@ -63,7 +63,7 @@ export const ACESSOS_DEMO: readonly AcessoDemo[] = [
     descricao: 'Acesso total, inclusive as credenciais de acesso.',
     icone: 'admin_panel_settings',
     login: 'admin',
-    password: 'admin123',
+    password: 'Admin@2025',
   },
   {
     role: 'professor',
@@ -71,7 +71,7 @@ export const ACESSOS_DEMO: readonly AcessoDemo[] = [
     descricao: 'Somente os cursos e as turmas de que e responsavel.',
     icone: 'school',
     login: 'professor',
-    password: 'prof123',
+    password: 'Prof@2025',
   },
   {
     role: 'aluno',
@@ -79,6 +79,6 @@ export const ACESSOS_DEMO: readonly AcessoDemo[] = [
     descricao: 'Somente o proprio cadastro, matriculas e frequencia.',
     icone: 'people',
     login: 'aluno',
-    password: '123456',
+    password: 'Aluno@2025',
   },
 ];
